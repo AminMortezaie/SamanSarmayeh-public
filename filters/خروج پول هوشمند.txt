@@ -1,0 +1,6 @@
+(ct).Sell_I_Volume   /   (ct).Sell_CountI   > 2   *   ((ct).Buy_I_Volume   /    (ct).Buy_CountI )
+&&
+(tvol)   > 3   *   [is5]	
+ 
+   
+  

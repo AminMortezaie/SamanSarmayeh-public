@@ -1,0 +1,151 @@
+true==function()
+{
+	
+	
+ var maj9y = 0 ;
+ 
+ 
+ for  (var h7 = 1	; h7 <=9 ;  h7 += 1 )
+ {
+	 
+     maj9y = maj9y + [ih][h7].PClosing;
+	 
+	  
+ }
+ 
+ 
+ var   mo9y  = maj9y / 9 ;
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  var maj25y = 0 ;
+ 
+ 
+
+ for  (var h7 = 1	; h7 <=25 ;  h7 += 1 )
+ {
+	 
+     maj25y = maj25y + [ih][h7].PClosing;
+	 
+	  
+ }
+ 
+ 
+ var   mo25y  = maj25y / 25 ;
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  var maj9t = 0 ;
+ 
+ 
+
+ for  (var h7 = 0	; h7 <=8 ;  h7 += 1 )
+ {
+	 
+     maj9t = maj9t + [ih][h7].PClosing;
+	 
+	  
+ }
+ 
+ 
+ var   mo9t  = maj9t / 9 ;
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  var maj25t = 0 ;
+ 
+
+ for  (var h7 = 0	; h7 <=24 ;  h7 += 1 )
+ {
+	 
+     maj25t = maj25t + [ih][h7].PClosing;
+	 
+	  
+ }
+ 
+ 
+ var   mo25t = maj25t / 25 ;
+ 
+ 
+ 
+ 
+ 
+ 
+ var darsad_kh_hagh =  (ct).Buy_I_Volume / (tvol) ;
+ 
+
+	var pol_kol_kh_hagh 	 =    darsad_kh_hagh *  (tval) 	;
+
+
+	var sarane_kh_hagh 	 =  pol_kol_kh_hagh		/ 		(ct).Buy_CountI   ;
+
+
+	var sarane_kh_hagh_rond		 =   Math.round(sarane_kh_hagh / 100000  )  /  100 ;
+
+
+	var darsad_fo_hagh	 =    (ct).Sell_I_Volume	 / 	(tvol) ;
+
+
+	var pool_kol_fo_hagh 	=  darsad_fo_hagh 	* 	(tval) ;
+
+
+	var sarane_fo_hagh	 =	 pool_kol_fo_hagh 	 /   (ct).Sell_CountI ;
+
+
+	var sarane_fo_hagh_rond 	=  Math.round(sarane_fo_hagh 	/	 100000  )  /  100 ;
+	
+	
+
+
+
+
+var mizan_reng = [ih][0].PriceMax - [ih][0].PriceMin ;
+var darsad_reng =  ( mizan_reng *  100 ) / (py) ;
+
+
+
+
+
+
+
+ 
+ 
+if (
+ mo25y > mo9y
+ &&
+ mo9t > mo25t
+
+&&
+sarane_kh_hagh_rond > 1.3 * sarane_fo_hagh_rond
+&&
+sarane_kh_hagh_rond > 20
+&&
+darsad_reng > 5
+
+
+
+
+
+
+ )
+ 
+{
+	
+	return true;
+}
+}()
+
+ 
+ 

@@ -1,0 +1,94 @@
+
+
+true==function()
+{
+var	darsad_kh_hagh 	 = (ct).Buy_I_Volume / (tvol) ;
+ 
+
+var pol_kol_kh_hagh 	 =    darsad_kh_hagh *  (tval) 	;
+
+
+var sarane_kh_hagh 	 =  pol_kol_kh_hagh		/ 		(ct).Buy_CountI   ;
+
+
+var sarane_kh_hagh_rond		 =   Math.round(sarane_kh_hagh / 100000  )  /  100 ;
+
+
+var darsad_fo_hagh	 =    (ct).Sell_I_Volume	 / 	(tvol) ;
+
+
+var pool_kol_fo_hagh 	=  darsad_fo_hagh 	* 	(tval) ;
+
+
+var sarane_fo_hagh	 =	 pool_kol_fo_hagh 	 /   (ct).Sell_CountI ;
+
+
+var sarane_fo_hagh_rond 	=  Math.round(sarane_fo_hagh 	/	 100000  )  /  100 ;
+
+
+
+
+
+
+	
+	
+	
+ var mi30 = (
+ [ih][0].QTotTran5J+
+ [ih][1].QTotTran5J+
+ [ih][2].QTotTran5J+
+ [ih][3].QTotTran5J+
+ [ih][4].QTotTran5J+
+ [ih][5].QTotTran5J+
+ [ih][6].QTotTran5J+
+ [ih][7].QTotTran5J+
+ [ih][8].QTotTran5J+
+ [ih][9].QTotTran5J+
+ [ih][10].QTotTran5J+
+ [ih][11].QTotTran5J+
+ [ih][12].QTotTran5J+
+ [ih][13].QTotTran5J+
+ [ih][14].QTotTran5J+
+ [ih][15].QTotTran5J+
+ [ih][16].QTotTran5J+
+ [ih][17].QTotTran5J+
+ [ih][18].QTotTran5J+
+ [ih][19].QTotTran5J+
+ [ih][20].QTotTran5J+
+ [ih][21].QTotTran5J+
+ [ih][22].QTotTran5J+
+ [ih][23].QTotTran5J+
+ [ih][24].QTotTran5J+
+ [ih][25].QTotTran5J+
+ [ih][26].QTotTran5J+
+ [ih][27].QTotTran5J+
+ [ih][28].QTotTran5J+
+ [ih][29].QTotTran5J
+);
+ 
+ var   av30  = mi30 / 30 ;
+ 
+	
+	
+	
+	
+	
+
+if ( sarane_kh_hagh_rond 	> 	100 
+
+ &&
+ 
+ sarane_kh_hagh_rond 	> 	( 3.5 *	 sarane_fo_hagh_rond )
+ 
+&&
+(py) > (pl)
+&&
+(tval) > 50000000000
+&&
+(tvol) >   (  0.8 * av30)
+) 
+{
+	
+	return true;
+}
+}()
