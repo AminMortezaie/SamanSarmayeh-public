@@ -1,0 +1,58 @@
+ true==function()
+ {
+	 
+ 
+	var a =  (ct).Sell_N_Volume	*   100 ;
+
+
+	var darsad_f_ho = 	a / (tvol) ;
+ 
+	var b = (ct).Buy_N_Volume *100 ;
+	
+	var dasad_k_ho = b / (tvol) ;
+
+	var	darsad_kh_hagh 	 = (ct).Buy_I_Volume / (tvol) ;
+ 
+
+	var pol_kol_kh_hagh 	 =    darsad_kh_hagh *  (tval) 	;
+
+
+	var sarane_kh_hagh 	 =  pol_kol_kh_hagh		/ 		(ct).Buy_CountI   ;
+
+
+	var sarane_kh_hagh_rond		 =   Math.round(sarane_kh_hagh / 100000  )  /  100 ;
+
+
+	var darsad_fo_hagh	 =    (ct).Sell_I_Volume	 / 	(tvol) ;
+
+
+	var pool_kol_fo_hagh 	=  darsad_fo_hagh 	* 	(tval) ;
+
+
+	var sarane_fo_hagh	 =	 pool_kol_fo_hagh 	 /   (ct).Sell_CountI ;
+
+
+	var sarane_fo_hagh_rond 	=  Math.round(sarane_fo_hagh 	/	 100000  )  /  100 ;
+
+if (
+ 
+ darsad_f_ho > 50
+ 
+&&
+
+sarane_kh_hagh_rond >15
+&&
+sarane_kh_hagh_rond >  1.5 * sarane_fo_hagh_rond 
+&&
+dasad_k_ho < 25
+&&
+(tvol) > 2.5 * [is5]	
+
+&&
+(pl)	<	(tmax)
+) 
+{
+	
+	return true;
+}
+}()

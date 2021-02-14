@@ -1,0 +1,262 @@
+true==function()
+{
+var	darsad_kh_hagh 	 = (ct).Buy_I_Volume / (tvol) ;
+ 
+
+var pol_kol_kh_hagh 	 =    darsad_kh_hagh *  (tval) 	;
+
+
+var sarane_kh_hagh 	 =  pol_kol_kh_hagh		/ 		(ct).Buy_CountI   ;
+
+
+var sarane_kh_hagh_rond		 =   Math.round(sarane_kh_hagh / 100000  )  /  100 ;
+
+
+var darsad_fo_hagh	 =    (ct).Sell_I_Volume	 / 	(tvol) ;
+
+
+var pool_kol_fo_hagh 	=  darsad_fo_hagh 	* 	(tval) ;
+
+
+var sarane_fo_hagh	 =	 pool_kol_fo_hagh 	 /   (ct).Sell_CountI ;
+
+
+var sarane_fo_hagh_rond 	=  Math.round(sarane_fo_hagh 	/	 100000  )  /  100 ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ var saghf60 = Math.max(  
+ [ih][0].PriceMax,
+ [ih][1].PriceMax,
+[ih][2].PriceMax,
+[ih][3].PriceMax,
+[ih][4].PriceMax,
+[ih][5].PriceMax,
+[ih][6].PriceMax,
+[ih][7].PriceMax,
+[ih][8].PriceMax,
+[ih][9].PriceMax,
+[ih][10].PriceMax,
+[ih][11].PriceMax,
+[ih][12].PriceMax,
+[ih][13].PriceMax,
+[ih][14].PriceMax,
+[ih][15].PriceMax,
+[ih][16].PriceMax,
+[ih][17].PriceMax,
+[ih][18].PriceMax,
+[ih][19].PriceMax,
+[ih][20].PriceMax,
+[ih][21].PriceMax,
+[ih][22].PriceMax,
+[ih][23].PriceMax,
+[ih][24].PriceMax,
+[ih][25].PriceMax,
+[ih][26].PriceMax,
+[ih][27].PriceMax,
+[ih][28].PriceMax,
+[ih][29].PriceMax,
+[ih][30].PriceMax,
+[ih][31].PriceMax,
+[ih][32].PriceMax,
+[ih][33].PriceMax,
+[ih][34].PriceMax,
+[ih][35].PriceMax,
+[ih][36].PriceMax,
+[ih][37].PriceMax,
+[ih][38].PriceMax,
+[ih][39].PriceMax,
+[ih][40].PriceMax,
+[ih][41].PriceMax,
+[ih][42].PriceMax,
+[ih][43].PriceMax,
+[ih][44].PriceMax,
+[ih][45].PriceMax,
+[ih][46].PriceMax,
+[ih][47].PriceMax,
+[ih][48].PriceMax,
+[ih][49].PriceMax,
+[ih][50].PriceMax,
+[ih][51].PriceMax,
+[ih][52].PriceMax,
+[ih][53].PriceMax,
+[ih][54].PriceMax,
+[ih][55].PriceMax,
+[ih][56].PriceMax,
+[ih][57].PriceMax,
+[ih][58].PriceMax,
+[ih][59].PriceMax
+ ) ;
+ 
+ 
+ 
+ 
+var ekhtelaf = saghf60 - (pl);
+
+
+
+var darsad_ektelaf = (ekhtelaf * 100) / saghf60;
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+	
+	
+	
+ var mi30 = (
+ [ih][0].QTotTran5J+
+ [ih][1].QTotTran5J+
+ [ih][2].QTotTran5J+
+ [ih][3].QTotTran5J+
+ [ih][4].QTotTran5J+
+ [ih][5].QTotTran5J+
+ [ih][6].QTotTran5J+
+ [ih][7].QTotTran5J+
+ [ih][8].QTotTran5J+
+ [ih][9].QTotTran5J+
+ [ih][10].QTotTran5J+
+ [ih][11].QTotTran5J+
+ [ih][12].QTotTran5J+
+ [ih][13].QTotTran5J+
+ [ih][14].QTotTran5J+
+ [ih][15].QTotTran5J+
+ [ih][16].QTotTran5J+
+ [ih][17].QTotTran5J+
+ [ih][18].QTotTran5J+
+ [ih][19].QTotTran5J+
+ [ih][20].QTotTran5J+
+ [ih][21].QTotTran5J+
+ [ih][22].QTotTran5J+
+ [ih][23].QTotTran5J+
+ [ih][24].QTotTran5J+
+ [ih][25].QTotTran5J+
+ [ih][26].QTotTran5J+
+ [ih][27].QTotTran5J+
+ [ih][28].QTotTran5J+
+ [ih][29].QTotTran5J
+);
+ 
+ var   av30  = mi30 / 30 ;
+ 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+if ( 
+
+
+
+
+
+
+
+	
+	
+sarane_kh_hagh_rond > 20
+
+&& 
+sarane_kh_hagh_rond >  (1.5 * sarane_fo_hagh_rond)
+
+&&
+
+darsad_ektelaf > 20
+
+&&
+
+(tvol) > 2 * av30
+
+&&
+
+
+[ih][0].QTotTran5J < (bvol)
+
+&&
+
+[ih][1].QTotTran5J < (bvol)
+
+&&
+
+[ih][2].QTotTran5J < (bvol)
+
+&&
+
+[ih][0].PriceMin == [ih][0].PriceMax
+
+&&
+
+[ih][1].PriceMin == [ih][1].PriceMax
+
+&&
+
+[ih][2].PriceMin == [ih][2].PriceMax
+
+&&
+
+[ih][0].PriceMax < [ih][1].PriceMax
+
+&&
+
+[ih][1].PriceMax < [ih][2].PriceMax
+
+&&
+
+(tval) > 50000000000
+
+&&
+
+(pmin) < (pl)
+
+&& 
+
+(pmin) == (tmin)
+
+ 
+
+) 
+{
+	
+	return true;
+}
+}()
