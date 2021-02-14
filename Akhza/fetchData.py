@@ -178,7 +178,7 @@ def fetchOldData():
     global totalCounter
     total = 0
     counter = 0
-    stockNumber = 0
+    stockNumber = 1
     data11 = data
     while stockNumber < 29:
         stockName = "stock"+str(stockNumber+1)
@@ -193,7 +193,7 @@ def fetchOldData():
         for j in range(4):
             loadElement(
                 "/html/body/div[4]/form/div[3]/div[19]/div[1]/div[1]/table/tbody/tr[2]/td[12]")
-            for i in range(2, 25):
+            for i in range(2, 24):
                 # days for click
                 day = loadElement(
                     "/html/body/div[4]/form/div[3]/div[19]/div[1]/div[2]/table/tbody/tr["+str(i)+"]/td[16]")
@@ -205,8 +205,6 @@ def fetchOldData():
                 # details for trades button in bottom of page
                 driver.switch_to.window(driver.window_handles[1])
                 # salMiladi = (driver.current_url.split("=")[3])[0:4]
-                monthMiladi = (driver.current_url.split("=")[3])[4:6]
-                dayMiladi = (driver.current_url.split("=")[3])[6:8]
                 loadElement(
                     "/html/body/div[4]/form/span/div/ul/li[2]/a").click()
                 loadElement(
@@ -259,8 +257,8 @@ def fetchOldData():
                         totalCounter += 1
                     driver.close()
                     driver.switch_to.window(driver.window_handles[0])
-            # nextPageOfHistory = loadElement(
-            #     "/html/body/div[4]/form/div[3]/div[19]/div[2]/div/a["+str(j+2)+"]")
+            loadElement(
+                "/html/body/div[4]/form/div[3]/div[19]/div[2]/div/a["+str(j+2)+"]").click()
         stockNumber += 1
         print("stockNUMBER: "+str(stockNumber))
         driver.get(data11[stockNumber]["url"])
