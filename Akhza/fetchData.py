@@ -33,10 +33,19 @@ with open('stocks.json') as f:
     data = json.load(f)
 
 
-def loadElement(xpath):
-    return WebDriverWait(driver, 300).until(
-        EC.presence_of_element_located(
-            (By.XPATH, xpath)))
+def loadElement(xpath, mode="slow"):
+    if mode == "slow":
+        return WebDriverWait(driver, 3000).until(
+            EC.presence_of_element_located(
+                (By.XPATH, xpath)))
+    if mode == "fast":
+        return WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located(
+                (By.XPATH, xpath)))
+    if mode == "medium":
+        return WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located(
+                (By.XPATH, xpath)))
 
 
 def loadElementFast(xpath):
@@ -178,9 +187,9 @@ def fetchOldData():
     global totalCounter
     total = 0
     counter = 0
-    stockNumber = 1
+    stockNumber = 31
     data11 = data
-    while stockNumber < 29:
+    while stockNumber < 36:
         stockName = "stock"+str(stockNumber+1)
         driver.get(data11[int(stockNumber)]["url"])
         showTrades = loadElement(
@@ -190,75 +199,79 @@ def fetchOldData():
         # sabeghe moamelat button
         loadElement(
             "/html/body/div[4]/form/div[3]/div[2]/div[2]/div[6]/div[1]").click()
-        for j in range(4):
-            loadElement(
-                "/html/body/div[4]/form/div[3]/div[19]/div[1]/div[1]/table/tbody/tr[2]/td[12]")
-            for i in range(2, 24):
-                # days for click
-                day = loadElement(
-                    "/html/body/div[4]/form/div[3]/div[19]/div[1]/div[2]/table/tbody/tr["+str(i)+"]/td[16]")
-                text = day.text
-                actionChains = ActionChains(driver)
-                monthShamsi, dayShamsi = day.text.split(
-                    "/")[1], day.text.split("/")[2]
-                actionChains.double_click(day).perform()
-                # details for trades button in bottom of page
-                driver.switch_to.window(driver.window_handles[1])
-                # salMiladi = (driver.current_url.split("=")[3])[0:4]
+        try:
+            for j in range(4):
                 loadElement(
-                    "/html/body/div[4]/form/span/div/ul/li[2]/a").click()
-                loadElement(
-                    "/html/body/div[4]/form/div[2]/div[3]/div/div/div/div[1]/table/tbody/tr[2]/td[2]/div").click()
-                ele = loadElement(
-                    "/html/body/div[4]/form/div[2]/div[3]/div/div/div/div[2]/table").text
-                if(ele == ''):
-                    data = ''
-                    print(str(text)+"Nothing Fetched!")
-                    persian_date = str(1399)+"-" + \
-                        str(monthShamsi)+"-"+str(dayShamsi)
-                    name_of_file = stockName+'-data-' + \
-                        persian_date + \
-                        "-"+Persian(persian_date).gregorian_string()+'.txt'
-                    save_path = 'DetailsData\\' + str(stockName)
-                    completeName = os.path.join(save_path, name_of_file)
-                    file1 = open(completeName, 'w')
-                    file1.close()
-                    driver.close()
-                    driver.switch_to.window(driver.window_handles[0])
-                else:
-                    data = loadElement(
+                    "/html/body/div[4]/form/div[3]/div[19]/div[1]/div[1]/table/tbody/tr[2]/td[12]", mode='medium')
+                for i in range(2, 24):
+                    # days for click
+                    day = loadElement(
+                        "/html/body/div[4]/form/div[3]/div[19]/div[1]/div[2]/table/tbody/tr["+str(i)+"]/td[16]", mode='medium')
+                    text = day.text
+                    actionChains = ActionChains(driver)
+                    monthShamsi, dayShamsi = day.text.split(
+                        "/")[1], day.text.split("/")[2]
+                    actionChains.double_click(day).perform()
+                    # details for trades button in bottom of page
+                    driver.switch_to.window(driver.window_handles[1])
+                    # salMiladi = (driver.current_url.split("=")[3])[0:4]
+                    loadElement(
+                        "/html/body/div[4]/form/span/div/ul/li[2]/a").click()
+                    loadElement(
+                        "/html/body/div[4]/form/div[2]/div[3]/div/div/div/div[1]/table/tbody/tr[2]/td[2]/div").click()
+                    ele = loadElement(
                         "/html/body/div[4]/form/div[2]/div[3]/div/div/div/div[2]/table").text
-                    print(str(text)+" data fetched!")
-                    persian_date = str(1399)+"-" + \
-                        str(monthShamsi)+"-"+str(dayShamsi)
-                    name_of_file = stockName+'-data-' + \
-                        persian_date + \
-                        "-"+Persian(persian_date).gregorian_string()+'.txt'
-                    save_path = 'DetailsData\\' + str(stockName)
-                    completeName = os.path.join(save_path, name_of_file)
-                    file1 = open(completeName, 'w')
-                    file1.writelines(data)
-                    file1.close()
-                    file1 = open(completeName, 'r')
-                    Lines = file1.readlines()
-                    for line in Lines:
-                        total += 1
-                    printProgressBar(0, total, prefix='Progress:',
-                                     suffix='Complete', length=50)
-                    for line in Lines:
-                        tim = line.split(" ")[1]
-                        price = line.split(" ")[3].split("\n")[0]
-                        volume = line.split(" ")[2]
-                        fullTradeHistory.append(
-                            [tim, price, volume, stockName])
-                        counter += 1
-                        printProgressBar(counter, total, prefix='Progress:',
+                    if(ele == ''):
+                        data = ''
+                        print(str(text)+"Nothing Fetched!")
+                        persian_date = str(1399)+"-" + \
+                            str(monthShamsi)+"-"+str(dayShamsi)
+                        name_of_file = stockName+'-data-' + \
+                            persian_date + \
+                            "-"+Persian(persian_date).gregorian_string()+'.txt'
+                        save_path = 'DetailsData\\' + str(stockName)
+                        completeName = os.path.join(save_path, name_of_file)
+                        file1 = open(completeName, 'w')
+                        file1.close()
+                        driver.close()
+                        driver.switch_to.window(driver.window_handles[0])
+                    else:
+                        data = loadElement(
+                            "/html/body/div[4]/form/div[2]/div[3]/div/div/div/div[2]/table").text
+                        print(str(text)+" data fetched!")
+                        persian_date = str(1399)+"-" + \
+                            str(monthShamsi)+"-"+str(dayShamsi)
+                        name_of_file = stockName+'-data-' + \
+                            persian_date + \
+                            "-"+Persian(persian_date).gregorian_string()+'.txt'
+                        save_path = 'DetailsData\\' + str(stockName)
+                        completeName = os.path.join(save_path, name_of_file)
+                        file1 = open(completeName, 'w')
+                        file1.writelines(data)
+                        file1.close()
+                        file1 = open(completeName, 'r')
+                        Lines = file1.readlines()
+                        for line in Lines:
+                            total += 1
+                        printProgressBar(0, total, prefix='Progress:',
                                          suffix='Complete', length=50)
-                        totalCounter += 1
-                    driver.close()
-                    driver.switch_to.window(driver.window_handles[0])
-            loadElement(
-                "/html/body/div[4]/form/div[3]/div[19]/div[2]/div/a["+str(j+2)+"]").click()
+                        for line in Lines:
+                            tim = line.split(" ")[1]
+                            price = line.split(" ")[3].split("\n")[0]
+                            volume = line.split(" ")[2]
+                            fullTradeHistory.append(
+                                [tim, price, volume, stockName])
+                            counter += 1
+                            printProgressBar(counter, total, prefix='Progress:',
+                                             suffix='Complete', length=50)
+                            totalCounter += 1
+                        driver.close()
+                        driver.switch_to.window(driver.window_handles[0])
+                loadElement(
+                    "/html/body/div[4]/form/div[3]/div[19]/div[2]/div/a["+str(j+2)+"]", mode='medium').click()
+        except:
+            pass
+
         stockNumber += 1
         print("stockNUMBER: "+str(stockNumber))
         driver.get(data11[stockNumber]["url"])

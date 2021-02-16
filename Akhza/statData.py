@@ -6,35 +6,23 @@ import json
 import os.path
 from os import listdir
 from os.path import isfile, join
+from jalali import *
 
-stocksName = ['704', '713', '716', '718',
+stocksName = ['910', '713', '716', '718',
               '720', '721', '722', '723',
               '804', '805', '806', '807',
               '808', '809', '810', '811',
               '812', '813', '814', '815',
               '816', '817', '818', '819',
-              '820', '821', '902', '903', '904']
-
-
-def dayMiladiGenerator():
-    if (month == 'aban'):
-        dayMiladi = day-10
-    if(month == 'azar'):
-        if(day <= 10):
-            dayMiladi = day+20
-        if(day > 10):
-            dayMiladi = day-10
-    return dayMiladi
+              '820', '821', '902', '903',
+              '904', '905', '906', '907',
+              '908', '909']
 
 
 YtmArray = []
 sortedFullHistory = []
 totalCounter = 0
 stockNumber = 0
-month = "09"
-day = "16"
-monthMiladi = "12"
-dayMiladi = "06"
 nullStocks = []
 fullTradeHistory = []
 tradeHistory = []
@@ -127,10 +115,11 @@ def fetchHistory(stockName):
     global totalCounter
     global stockNumber
     total = 0
-    name_of_file = stockName+'_data_'+str(month)+'_' + \
-        str(day) + '_2020_'+str(monthMiladi)+"_"+str(dayMiladi)+'.txt'
-    save_path = 'D:\\Sadra\\WebDriver\\Akhza\\DetailsData\\' + \
-        str(stockName)
+    persian_date = str(1399)+"-"+str(month)+"-"+str(day)
+    name_of_file = stockName+'-data-' + \
+        persian_date + "-" + \
+        Persian(persian_date).gregorian_string()+'.txt'
+    save_path = 'DetailsData\\' + str(stockName)
     completeName = os.path.join(save_path, name_of_file)
     file1 = open(completeName, 'r')
     Lines = file1.readlines()
@@ -201,9 +190,11 @@ def fullHistoryForDay():
     for number in range(len(tradeHistory)):
         stockName, mini, miniTime, maxi, maxiTime, average = findAverageYtmForOnePaper(
             number)
-        name_of_file = stockName+'_stat_data_'+str(month)+'_' + \
-            str(day) + '_2020_'+str(monthMiladi)+"_"+str(dayMiladi)+'.txt'
-        save_path = 'D:\\Sadra\\WebDriver\\Akhza\\StatData\\'+stockName
+        persian_date = str(1399)+"-"+str(month)+"-"+str(day)
+        name_of_file = stockName+'-stat-data-' + \
+            persian_date + "-" + \
+            Persian(persian_date).gregorian_string()+'.txt'
+        save_path = 'StatData\\' + str(stockName)
         completeName = os.path.join(save_path, name_of_file)
         file1 = open(completeName, 'w')
         file1.writelines("StockName: "+stockName+"\n")
@@ -227,9 +218,11 @@ def makeDetailsForAll():
     maxiTime = ''
     for stockNumber in range(dataNumber):
         stockName = "stock" + str(stockNumber+1)
-        name_of_file = stockName+'_stat_data_'+str(month)+'_' + \
-            str(day) + '_2020_'+str(monthMiladi)+"_"+str(dayMiladi)+'.txt'
-        save_path = 'D:\\Sadra\\WebDriver\\Akhza\\StatData\\'+stockName
+        persian_date = str(1399)+"-"+str(month)+"-"+str(day)
+        name_of_file = stockName+'-stat-data-' + \
+            persian_date + "-" + \
+            Persian(persian_date).gregorian_string()+'.txt'
+        save_path = 'StatData\\' + str(stockName)
         completeName = os.path.join(save_path, name_of_file)
         try:
             temp = []
