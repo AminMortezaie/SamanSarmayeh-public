@@ -9,21 +9,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver import ActionChains
 import json
-
-months = ["farvardin", "ordibehesht", "khordad",
-          "tir", "mordad", "shahrivar",
-          "mehr", "aban", "azar",
-          "dey", "bahman", "esfand"]
+from jalali import *
 
 
-month = '09'
-day = "24"
-monthMiladi = 12
-dayMiladi = "14"
 fullTradeHistory = []
 tradeHistory = []
 stockNumber = 0
-Path = 'C:\\Program Files (x86)\\chromedriver.exe'
+Path = 'chromedriver.exe'
 options = webdriver.ChromeOptions()
 options.add_argument('--headless')
 options.add_argument('--hide-scrollbars')
@@ -90,20 +82,22 @@ def loadPreviousData(stockName, month, day):
         if(ele == ''):
             data = ''
             print("Nothing Fetched!")
-            name_of_file = stockName+'_data_'+str(month)+'_' + \
-                str(day) + '_2020_'+str(monthMiladi)+"_"+str(dayMiladi)+'.txt'
-            save_path = 'D:\\Sadra\\WebDriver\\Akhza\\DetailsData\\' + \
-                str(stockName)
+            persian_date = str(1399)+"-"+str(month)+"-"+str(day)
+            name_of_file = stockName+'-data-' + \
+                persian_date + "-" + \
+                Persian(persian_date).gregorian_string()+'.txt'
+            save_path = 'DetailsData\\' + str(stockName)
             completeName = os.path.join(save_path, name_of_file)
             file1 = open(completeName, 'w')
             file1.close()
         else:
             data = loadElement("/html/body/div[6]/section/div/div").text
             print(stockName+" data fetched!")
-            name_of_file = stockName+'_data_'+str(month)+'_' + \
-                str(day) + '_2020_'+str(monthMiladi)+"_"+str(dayMiladi)+'.txt'
-            save_path = 'D:\\Sadra\\WebDriver\\Akhza\\DetailsData\\' + \
-                str(stockName)
+            persian_date = str(1399)+"-"+str(month)+"-"+str(day)
+            name_of_file = stockName+'-data-' + \
+                persian_date + "-" + \
+                Persian(persian_date).gregorian_string()+'.txt'
+            save_path = 'DetailsData\\' + str(stockName)
             completeName = os.path.join(save_path, name_of_file)
             file1 = open(completeName, 'w')
             file1.writelines(data[16:])
@@ -158,7 +152,7 @@ def openUrl(url, number):
     driver.get(url)
 
 
-def fetchUrlDate(number):
+# def fetchUrlDate(number):
     action = ActionChains(driver)
     span = loadElement(
         "/html/body/div[4]/form/div[3]/div[2]/div[1]/div[3]/div[2]/div/div[5]/span")
@@ -184,7 +178,7 @@ def fetchOldData():
     global totalCounter
     total = 0
     counter = 0
-    stockNumber = 0
+    stockNumber = 1
     data11 = data
     while stockNumber < 29:
         stockName = "stock"+str(stockNumber+1)
@@ -196,10 +190,10 @@ def fetchOldData():
         # sabeghe moamelat button
         loadElement(
             "/html/body/div[4]/form/div[3]/div[2]/div[2]/div[6]/div[1]").click()
-        for j in range(1):
+        for j in range(4):
             loadElement(
                 "/html/body/div[4]/form/div[3]/div[19]/div[1]/div[1]/table/tbody/tr[2]/td[12]")
-            for i in range(2, 8):
+            for i in range(2, 24):
                 # days for click
                 day = loadElement(
                     "/html/body/div[4]/form/div[3]/div[19]/div[1]/div[2]/table/tbody/tr["+str(i)+"]/td[16]")
@@ -211,8 +205,6 @@ def fetchOldData():
                 # details for trades button in bottom of page
                 driver.switch_to.window(driver.window_handles[1])
                 # salMiladi = (driver.current_url.split("=")[3])[0:4]
-                monthMiladi = (driver.current_url.split("=")[3])[4:6]
-                dayMiladi = (driver.current_url.split("=")[3])[6:8]
                 loadElement(
                     "/html/body/div[4]/form/span/div/ul/li[2]/a").click()
                 loadElement(
@@ -222,11 +214,12 @@ def fetchOldData():
                 if(ele == ''):
                     data = ''
                     print(str(text)+"Nothing Fetched!")
-                    name_of_file = stockName+'_data_'+str(monthShamsi)+'_' + \
-                        str(dayShamsi) + '_2020_'+str(monthMiladi) + \
-                        "_"+str(dayMiladi)+'.txt'
-                    save_path = 'D:\\Sadra\\WebDriver\\Akhza\\DetailsData\\' + \
-                        str(stockName)
+                    persian_date = str(1399)+"-" + \
+                        str(monthShamsi)+"-"+str(dayShamsi)
+                    name_of_file = stockName+'-data-' + \
+                        persian_date + \
+                        "-"+Persian(persian_date).gregorian_string()+'.txt'
+                    save_path = 'DetailsData\\' + str(stockName)
                     completeName = os.path.join(save_path, name_of_file)
                     file1 = open(completeName, 'w')
                     file1.close()
@@ -236,11 +229,12 @@ def fetchOldData():
                     data = loadElement(
                         "/html/body/div[4]/form/div[2]/div[3]/div/div/div/div[2]/table").text
                     print(str(text)+" data fetched!")
-                    name_of_file = stockName+'_data_'+str(monthShamsi)+'_' + \
-                        str(dayShamsi) + '_2020_'+str(monthMiladi) + \
-                        "_"+str(dayMiladi)+'.txt'
-                    save_path = 'D:\\Sadra\\WebDriver\\Akhza\\DetailsData\\' + \
-                        str(stockName)
+                    persian_date = str(1399)+"-" + \
+                        str(monthShamsi)+"-"+str(dayShamsi)
+                    name_of_file = stockName+'-data-' + \
+                        persian_date + \
+                        "-"+Persian(persian_date).gregorian_string()+'.txt'
+                    save_path = 'DetailsData\\' + str(stockName)
                     completeName = os.path.join(save_path, name_of_file)
                     file1 = open(completeName, 'w')
                     file1.writelines(data)
@@ -263,8 +257,8 @@ def fetchOldData():
                         totalCounter += 1
                     driver.close()
                     driver.switch_to.window(driver.window_handles[0])
-            # nextPageOfHistory = loadElement(
-            #     "/html/body/div[4]/form/div[3]/div[19]/div[2]/div/a["+str(j+2)+"]")
+            loadElement(
+                "/html/body/div[4]/form/div[3]/div[19]/div[2]/div/a["+str(j+2)+"]").click()
         stockNumber += 1
         print("stockNUMBER: "+str(stockNumber))
         driver.get(data11[stockNumber]["url"])
