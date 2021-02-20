@@ -50,7 +50,6 @@ from jalali import *
 #         cursor.close()
 #         connection.close()
 #         print("PostgreSQL connection is closed")
-from akhzaDatabase import *
-import os
-obj = AkhzaDataBase()
+from getDataFromTse import OnlineData
 
+print(OnlineData().run())
