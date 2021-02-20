@@ -1,32 +1,56 @@
 import os
 
-# for i in range(2, 30):
-#     # Directory
-directory = "stock"+str(2)
+# import psycopg2
+# from psycopg2 import Error
 
-#     # Parent Directory path
-parent_dir = "DetailsData"
+# try:
+#     # Connect to an existing database
+#     connection = psycopg2.connect(user="postgres",
+#                                   password="Amin4416",
+#                                   host="localhost",
+#                                   port="5432",
+#                                   database="postgres_db")
 
-#     # Path
-path = os.path.join(parent_dir, directory)
+#     cursor = connection.cursor()
+#     # Executing a SQL query to insert data into  table
+#     insert_query = """ INSERT INTO mobile (ID, MODEL, PRICE) VALUES (1, 'Iphone12', 1100)"""
+#     cursor.execute(insert_query)
+#     connection.commit()
+#     print("1 Record inserted successfully")
+#     # Fetch result
+#     cursor.execute("SELECT * from mobile")
+#     record = cursor.fetchall()
+#     print("Result ", record)
 
-#     # Create the directory
-#     # 'GeeksForGeeks' in
-#     # '/home / User / Documents'
-#     os.mkdir(path)
+#     # Executing a SQL query to update table
+#     update_query = """Update mobile set price = 1500 where id = 1"""
+#     cursor.execute(update_query)
+#     connection.commit()
+#     count = cursor.rowcount
+#     print(count, "Record updated successfully ")
+#     # Fetch result
+#     cursor.execute("SELECT * from mobile")
+#     print("Result ", cursor.fetchall())
+
+#     # Executing a SQL query to delete table
+#     delete_query = """Delete from mobile where id = 1"""
+#     cursor.execute(delete_query)
+#     connection.commit()
+#     count = cursor.rowcount
+#     print(count, "Record deleted successfully ")
+#     # Fetch result
+#     cursor.execute("SELECT * from mobile")
+#     print("Result ", cursor.fetchall())
 
 
-for f in os.listdir(path):
+# except (Exception, Error) as error:
+#     print("Error while connecting to PostgreSQL", error)
+# finally:
+#     if (connection):
+#         cursor.close()
+#         connection.close()
+#         print("PostgreSQL connection is closed")
+from akhzaDatabase import *
+import os
+obj = AkhzaDataBase()
 
-    for stockName in range(1, 36):
-        directory = "stock"+str(stockName)
-        parent_dir = "DetailsData\\"+"stock"+str(stockName)
-        path = os.path.join(parent_dir, directory)
-        name = ''
-        e = ''
-        for i in f.split("-")[1:]:
-            e += "-"+i
-        name = "stock"+str(stockName)+e
-        path = os.path.join(parent_dir, name)
-        file1 = open(path, 'a')
-        file1.close()

@@ -1,7 +1,6 @@
 import os
 import datetime
 from datetime import date
-# this function has some modes mode 1 is for find ytm for one paper in some range
 import json
 import os.path
 from os import listdir
