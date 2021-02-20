@@ -200,7 +200,7 @@ def fetchOldData():
         loadElement(
             "/html/body/div[4]/form/div[3]/div[2]/div[2]/div[6]/div[1]").click()
         try:
-            for j in range(4):
+            for j in range(3, 8):
                 loadElement(
                     "/html/body/div[4]/form/div[3]/div[19]/div[1]/div[1]/table/tbody/tr[2]/td[12]", mode='medium')
                 for i in range(2, 24):
@@ -228,9 +228,11 @@ def fetchOldData():
                             str(monthShamsi)+"-"+str(dayShamsi)
                         name_of_file = stockName+'-data-' + \
                             persian_date + \
-                            "-"+Persian(persian_date).gregorian_string()+'.txt'
+                            "-" + \
+                            Persian(persian_date).gregorian_string()+'.txt'
                         save_path = 'DetailsData\\' + str(stockName)
-                        completeName = os.path.join(save_path, name_of_file)
+                        completeName = os.path.join(
+                            save_path, name_of_file)
                         file1 = open(completeName, 'w')
                         file1.close()
                         driver.close()
@@ -243,12 +245,17 @@ def fetchOldData():
                             str(monthShamsi)+"-"+str(dayShamsi)
                         name_of_file = stockName+'-data-' + \
                             persian_date + \
-                            "-"+Persian(persian_date).gregorian_string()+'.txt'
+                            "-" + \
+                            Persian(persian_date).gregorian_string()+'.txt'
                         save_path = 'DetailsData\\' + str(stockName)
-                        completeName = os.path.join(save_path, name_of_file)
+                        completeName = os.path.join(
+                            save_path, name_of_file)
                         file1 = open(completeName, 'w')
                         file1.writelines(data)
                         file1.close()
+                        print("stock: "+str(stockName.split('stock')[1]))
+                        AkhzaDataBase().add_record_from_tse(
+                            stockName.split('stock')[1], persian_date, name_of_file)
                         file1 = open(completeName, 'r')
                         Lines = file1.readlines()
                         for line in Lines:
@@ -267,11 +274,13 @@ def fetchOldData():
                             totalCounter += 1
                         driver.close()
                         driver.switch_to.window(driver.window_handles[0])
-                loadElement(
-                    "/html/body/div[4]/form/div[3]/div[19]/div[2]/div/a["+str(j+2)+"]", mode='medium').click()
+                try:
+                    loadElement(
+                        "/html/body/div[4]/form/div[3]/div[19]/div[2]/div/a["+str(j+2)+"]", mode='medium').click()
+                except:
+                    print("this page is not valid.")
         except:
             pass
-
         stockNumber += 1
         print("stockNUMBER: "+str(stockNumber))
         driver.get(data11[stockNumber]["url"])
