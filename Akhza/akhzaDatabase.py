@@ -52,7 +52,7 @@ class AkhzaDataBase:
                 "-")[2]+'-'+name_of_file.split("-")[3]+"-"+name_of_file.split("-")[4]
             payment_date = self.fetch_payment_date_from_database(
                 stock_id)
-            ytm = self.findYtmWithDate(date_miladi, payment_date, price)
+            ytm = self.find_ytm_with_date(date_miladi, payment_date, price)
 
             insert_query = """ INSERT INTO TRADES VALUES (DEFAULT,""" + \
                 str(stock_id)+','+'\''+str(tim)+'\''+','+'\''+str(price)+'\''+',' +\
@@ -80,8 +80,7 @@ class AkhzaDataBase:
             return False
         return True
 
-    def findYtmWithDate(self, date, payment_date, price):
-        print(payment_date)
+    def find_ytm_with_date(self, date, payment_date, price):
         return round(self.xirr([(self.convertToDate(str(payment_date)), 1000000), (self.convertToDate(date), -int(price))])*100, 3)
 
     def convertToDate(self, str):
