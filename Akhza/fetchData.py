@@ -10,7 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver import ActionChains
 import json
 from jalali import *
-
+from akhzaDatabase import AkhzaDataBase
 
 fullTradeHistory = []
 tradeHistory = []
@@ -153,24 +153,24 @@ def openUrl(url, number):
 
 
 # def fetchUrlDate(number):
-    action = ActionChains(driver)
-    span = loadElement(
-        "/html/body/div[4]/form/div[3]/div[2]/div[1]/div[3]/div[2]/div/div[5]/span")
-    if(span.text == 'مخفی'):
-        span.click()
-    loadElementFast(
-        "/html/body/div[4]/form/div[3]/div[2]/div[2]/div[6]/div[1]").click()
-    loadElementFast(
-        "/html/body/div[4]/form/div[3]/div[19]/div[1]/div[1]/table/tbody/tr[2]/td[12]")
+#     action = ActionChains(driver)
+#     span = loadElement(
+#         "/html/body/div[4]/form/div[3]/div[2]/div[1]/div[3]/div[2]/div/div[5]/span")
+#     if(span.text == 'مخفی'):
+#         span.click()
+#     loadElementFast(
+#         "/html/body/div[4]/form/div[3]/div[2]/div[2]/div[6]/div[1]").click()
+#     loadElementFast(
+#         "/html/body/div[4]/form/div[3]/div[19]/div[1]/div[1]/table/tbody/tr[2]/td[12]")
 
-    date = loadElementFast(
-        "/html/body/div[4]/form/div[3]/div[19]/div[1]/div[2]/table/tbody/tr[2]/td[16]")
-    month = months[int(date.text.split("/")[1])-1]
-    day = int(date.text.split("/")[2])
-    action.double_click(date).perform()
-    driver.switch_to.window(driver.window_handles[number+1])
-    url = driver.current_url
-    return url, day, month
+#     date = loadElementFast(
+#         "/html/body/div[4]/form/div[3]/div[19]/div[1]/div[2]/table/tbody/tr[2]/td[16]")
+#     month = months[int(date.text.split("/")[1])-1]
+#     day = int(date.text.split("/")[2])
+#     action.double_click(date).perform()
+#     driver.switch_to.window(driver.window_handles[number+1])
+#     url = driver.current_url
+#     return url, day, month
 
 
 def fetchOldData():
@@ -178,7 +178,7 @@ def fetchOldData():
     global totalCounter
     total = 0
     counter = 0
-    stockNumber = 1
+    stockNumber = 0
     data11 = data
     while stockNumber < 29:
         stockName = "stock"+str(stockNumber+1)
@@ -275,9 +275,4 @@ def fetcherByHand(tableUrl):
 
 
 fetchOldData()
-# driver.get(data[0]["url"])
-# loadPreviousData("stock"+"1", month, day)
-# for i in range(1, dataNumber):
-#     openUrl(data[i]["url"], i)
-#     loadPreviousData("stock"+str(i+1), month, day)
 driver.quit()
