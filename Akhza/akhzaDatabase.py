@@ -28,6 +28,7 @@ class AkhzaDataBase:
         self.cursor.execute(query)
         self.connection.commit()
         print("query successfully in PostgreSQL ")
+        return self.cursor.fetchall()
 
     def create_table(self, table_query):
         # take name and table query.

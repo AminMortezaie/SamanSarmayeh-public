@@ -28,6 +28,7 @@ flag = dataNumber
 tc = 0
 counter = 0
 totalCounter = 0
+db = AkhzaDataBase()
 
 with open('stocks.json') as f:
     data = json.load(f)
@@ -183,6 +184,7 @@ def openUrl(url, number):
 
 
 def fetchOldData():
+    global db
     global data
     global totalCounter
     total = 0
@@ -199,6 +201,7 @@ def fetchOldData():
         # sabeghe moamelat button
         loadElement(
             "/html/body/div[4]/form/div[3]/div[2]/div[2]/div[6]/div[1]").click()
+
         try:
             for j in range(3, 8):
                 loadElement(
@@ -253,8 +256,9 @@ def fetchOldData():
                         file1 = open(completeName, 'w')
                         file1.writelines(data)
                         file1.close()
-                        print("stock: "+str(stockName.split('stock')[1]))
-                        AkhzaDataBase().add_record_from_tse(
+                        print(db.make_query(
+                            '''select stock_name from stock where stock_id= '''+str(stockName.split('stock')[1]))[0][0])
+                        db.add_record_from_tse(
                             stockName.split('stock')[1], persian_date, name_of_file)
                         file1 = open(completeName, 'r')
                         Lines = file1.readlines()
@@ -280,7 +284,7 @@ def fetchOldData():
                 except:
                     print("this page is not valid.")
         except:
-            pass
+            print("hey there!")
         stockNumber += 1
         print("stockNUMBER: "+str(stockNumber))
         driver.get(data11[stockNumber]["url"])
