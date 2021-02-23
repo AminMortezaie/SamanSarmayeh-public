@@ -10,16 +10,18 @@ from selenium.webdriver.common.action_chains import ActionChains
 import plotly.graph_objects as go
 import json
 from akhzaDatabase import AkhzaDataBase
+from broker_class import Broker
 
 
 class OnlineData:
     def __init__(self):
         Path = 'chromedriver.exe'
         self.driver = webdriver.Chrome(Path)
+        self.broker = Broker(self.driver)
         self.db = AkhzaDataBase()
         self.color = "black"
         self.tim = 0.0001
-        self.dataNumber = 20
+        self.dataNumber = 35
         self.VALUES = []
         self.nullStocks = []
         self.fullTradeHistory = []
@@ -60,17 +62,29 @@ class OnlineData:
             li = str(price).split(',')
             newPrice = str(li[0])+str(li[1])
             return int(newPrice)
-        return int(price)
+        try:
+            return int(price)
+        except:
+            return price
 
     def openUrl(self, url, number):
         self.driver.execute_script("window.open('');")
         self.driver.switch_to.window(self.driver.window_handles[number])
         self.driver.get(url)
 
-    def loadElement(self, xpath):
-        return WebDriverWait(self.driver, 300).until(
-            EC.presence_of_element_located(
-                (By.XPATH, xpath)))
+    def loadElement(self, xpath, mode="slow"):
+        if mode == "slow":
+            return WebDriverWait(self.driver, 3000).until(
+                EC.presence_of_element_located(
+                    (By.XPATH, xpath)))
+        if mode == "fast":
+            return WebDriverWait(self.driver, 5).until(
+                EC.presence_of_element_located(
+                    (By.XPATH, xpath)))
+        if mode == "medium":
+            return WebDriverWait(self.driver, 20).until(
+                EC.presence_of_element_located(
+                    (By.XPATH, xpath)))
 
     def loadElementAkhza(self, xpath):
         try:
@@ -467,62 +481,73 @@ class OnlineData:
 
         return xArray, yArray
 
-    def run(self):
-        self.driver.get(self.data[0]["url"])
+    def start(self):
+        self.openUrl(self.data[0]["url"], 1)
         for i in range(1, self.dataNumber):
-            self.openUrl(self.data[i]["url"], i)
+            self.openUrl(self.data[i]["url"], i+1)
         print(self.nullStocks)
 
-        while True:
-            # time.sleep(2)
-            print("counter: "+str(self.counter))
-            if self.counter < self.dataNumber-1:
-                self.counter += 1
-            else:
-                self.counter = 0
+    def run(self):
+        # while True:
+        # time.sleep(2)
+        print("counter: "+str(self.counter))
+        if self.counter < self.dataNumber-1:
+            self.counter += 1
+        else:
+            self.counter = 0
 
-            self.driver.switch_to.window(
-                self.driver.window_handles[self.counter])
+        self.driver.switch_to.window(
+            self.driver.window_handles[self.counter+1])
 
-            value = WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, '/html/body/div[4]/form/div[3]/div[2]/div[2]/div[2]/div/table/tbody/tr[2]/td[4]')))
+        value = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located(
+                (By.XPATH, '/html/body/div[4]/form/div[3]/div[2]/div[2]/div[2]/div/table/tbody/tr[2]/td[4]')))
 
-            if(not isinstance(value.text, str)):
-                self.value1 = 0
-            elif(value.text != '' and value.text != ' '):
-                self.value1 = self.convertToValue(value.text)
-            elif(value.text == ' '):
-                self.value1 = 1000000
+        if(not isinstance(value.text, str)):
+            self.value1 = 0
+        elif(value.text != '' and value.text != ' '):
+            self.value1 = self.convertToValue(value.text)
+        elif(value.text == ' '):
+            self.value1 = 1000000
 
-            volume = self.loadElement(
-                '/html/body/div[4]/form/div[3]/div[2]/div[2]/div[2]/div/table/tbody/tr[2]/td[5]')
+        volume = self.loadElement(
+            '/html/body/div[4]/form/div[3]/div[2]/div[2]/div[2]/div/table/tbody/tr[2]/td[5]')
 
-            if(not isinstance(volume.text, str)):
-                self.volume1 = 0
-            elif(volume.text != '' and volume.text != ' '):
-                self.volume1 = self.convertToValue(volume.text)
-            elif(volume.text == ' '):
-                self.volume1 = 1000000
+        if(not isinstance(volume.text, str)):
+            self.volume1 = 0
+        elif(volume.text != '' and volume.text != ' '):
+            self.volume1 = self.convertToValue(volume.text)
+        elif(volume.text == ' '):
+            self.volume1 = 1000000
 
-            if(self.flag > 0):
-                self.VALUES.append([str(self.value1),
-                                    str(self.volume1), 0.1])
-                self.flag -= 1
-            else:
-                self.VALUES[self.counter][0] = str(self.value1)
-                self.VALUES[self.counter][1] = str(self.volume1)
-                self.VALUES[self.counter][2] = self.db.find_ytm_with_date(
-                    str(self.dailyDate), self.db.fetch_payment_date_from_database(self.counter+1), self.value1)
-            print(self.VALUES)
-            if(self.counter == self.dataNumber-1):
-                self.averageFlag = True
-            if(self.averageFlag):
-                print("\n\n")
-                print("Ytm Average: " + str(self.findYtmAverage()))
-                print("-----------S I G N A L---------------")
-                for iterator in range(len(self.VALUES)):
-                    if(self.VALUES[iterator][2] > self.findYtmAverage()):
-                        print("StockNumber:" + str(iterator+1))
-                        print("StockYtm: " + str(self.VALUES[iterator][2]))
-                        print("-------------------------")
+        if(self.flag > 0):
+            self.VALUES.append([str(self.value1),
+                                str(self.volume1), 0.1])
+            self.flag -= 1
+        else:
+            self.VALUES[self.counter][0] = str(self.value1)
+            self.VALUES[self.counter][1] = str(self.volume1)
+            self.VALUES[self.counter][2] = self.db.find_ytm_with_date(
+                str(self.dailyDate), self.db.fetch_payment_date_from_database(self.counter+1), self.value1)
+        print(self.VALUES)
+        if(self.counter == self.dataNumber-1):
+            self.averageFlag = True
+        if(self.averageFlag):
+            # print("\n\n")
+            # print("Ytm Average: " + str(self.findYtmAverage()))
+            # print("-----------S I G N A L---------------")
+            s = ''
+            for iterator in range(len(self.VALUES)):
+                try:
+                    if(29 > self.VALUES[iterator][2] > 24):
+                        self.broker.buy_stock(self.counter+1,
+                                              iterator+1, self.VALUES[iterator][0], 3)
+                        s += "StockNumber:" + str(self.db.make_query(
+                            """select stock_name from stock where stock_id= """+str(iterator+1))[0][0])+'\n' +\
+                            "Price:  "+str(self.VALUES[iterator][0])+"\n" +\
+                            "StockYtm: " + str(self.VALUES[iterator][2])+"\n" +\
+                            "-------------------------"+'\n'
+                        print(s)
+                except:
+                    pass
+            return s
