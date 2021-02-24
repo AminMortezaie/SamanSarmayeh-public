@@ -203,10 +203,10 @@ def fetchOldData():
             "/html/body/div[4]/form/div[3]/div[2]/div[2]/div[6]/div[1]").click()
 
         try:
-            for j in range(3, 8):
+            for j in range(1):
                 loadElement(
                     "/html/body/div[4]/form/div[3]/div[19]/div[1]/div[1]/table/tbody/tr[2]/td[12]", mode='medium')
-                for i in range(2, 24):
+                for i in range(2, 3):
                     # days for click
                     day = loadElement(
                         "/html/body/div[4]/form/div[3]/div[19]/div[1]/div[2]/table/tbody/tr["+str(i)+"]/td[16]", mode='medium')
