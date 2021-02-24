@@ -45,9 +45,12 @@ class Broker:
             "/html/body/div[1]/div[2]/div[1]/div/div[3]/div[1]/div[2]/div[1]/form/div[2]/input").send_keys("0311804421")
         self.loadElement(
             "/html/body/div[1]/div[2]/div[1]/div/div[3]/div[1]/div[2]/div[1]/form/div[3]/input").send_keys("@Amin4416")
-        time.sleep(5)
-        self.loadElement(
-            """//*[@id="mat-radio-7"]/label/div[1]/div[1]""").click()
+        try:
+            time.sleep(3)
+            self.loadElement(
+                """//*[@id="mat-radio-7"]/label/div[1]/div[1]""").click()
+        except:
+            pass
 
     def buy_stock(self, index, stock_id, price, volume):
         # choose stock
@@ -65,6 +68,6 @@ class Broker:
             self.driver.refresh()
             self.loadElement(
                 """//*[@id="mat-radio-7"]/label/div[1]/div[1]""").click()
-            
+
         self.driver.switch_to.window(
             self.driver.window_handles[index])
