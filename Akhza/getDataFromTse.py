@@ -551,3 +551,10 @@ class OnlineData:
                 except:
                     pass
             return s
+
+
+obj = OnlineData()
+obj.start()
+
+while True:
+    obj.run()
