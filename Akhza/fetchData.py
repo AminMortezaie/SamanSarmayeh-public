@@ -191,7 +191,7 @@ def fetchOldData():
     counter = 0
     stockNumber = 0
     data11 = data
-    while stockNumber < 36:
+    while stockNumber < 35:
         stockName = "stock"+str(stockNumber+1)
         driver.get(data11[int(stockNumber)]["url"])
         showTrades = loadElement(
