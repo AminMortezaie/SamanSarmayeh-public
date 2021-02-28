@@ -24,10 +24,50 @@ class Analyze:
                 names.append("("+str(ytm)+"," + str(temp)+")")
         return variety, names
 
-    def maching_algorithm(self, date):
-        print(self.db.calculate_days_after(24, date, 5)
-              )
+    def matching_algorithm(self, date):
+        if len(self.db.return_list_above_average(date)) != 0:
+            for k in range(len(self.db.return_list_above_average(date))):
+                spec_trade = self.db.return_list_above_average(date)[k]
+                average_ytm = self.db.average_ytm_by_date(date)
+                print(spec_trade)
+                print(average_ytm)
+                stock_id = spec_trade[1]
+                price = spec_trade[3]
+                for ele in range(len(self.db.calculate_days_after(stock_id, date, 5))):
+                    x = self.db.calculate_days_after(stock_id, date, 5)
+                    for i in range(len(self.db.find_trades_by_stock_id_above_price(stock_id, x[ele], price))):
+                        if ele == 0:
+                            y = self.db.find_trades_by_stock_id_above_price(
+                                stock_id, x[ele], price)
+                            if spec_trade[2] < y[i][2]:
+                                try:
+                                    self.db.add_record_to_analyze_options(
+                                        spec_trade, y[i], ele)
+                                except:
+                                    pass
+                            else:
+                                pass
+                        else:
+                            y = self.db.find_trades_by_stock_id_above_price(
+                                stock_id, x[ele], price)
+                            try:
+                                self.db.add_record_to_analyze_options(
+                                    spec_trade, y[i], ele)
+                            except:
+                                pass
+
+        else:
+            pass
+
+    def run_matching_algorithm(self, enter_date, exit_date):
+        date = enter_date
+        while date != exit_date:
+            date = self.db.date_generator(date)
+            self.matching_algorithm(date)
 
 
 obj = Analyze()
-obj.maching_algorithm('1399-12-04')
+date = '1399-01-29'
+
+obj.run_matching_algorithm('1399-07-01','1399-07-01')
+
