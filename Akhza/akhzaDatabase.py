@@ -132,13 +132,20 @@ class AkhzaDataBase:
         return self.make_query(
             '''select * from trades where date_shamsi= \'''' +
             str(date)+"\' and volume>100 and ytm>" +
-            str(ytm)+'''order by ytm desc'''
-        )
+            str(ytm)+'''order by ytm desc''')
 
     def return_list_above_average(self, date):
+        ''' this makes query and find the list above average or 21
+            in fact this is buy list
+         '''
         lst = []
-        query_result = self.list_of_data_above_average(
-            min(self.average_ytm_by_date(date), 21), date)
+        try:
+            query_result = self.list_of_data_above_average(
+                min(self.average_ytm_by_date(date), 21), date)
+        except:
+            query_result = self.list_of_data_above_average(
+                21, date)
+
         co = 0
         for ele in query_result:
             co += 1
@@ -146,6 +153,7 @@ class AkhzaDataBase:
         return lst
 
     def calculate_days_after(self, stock_id, date, day_count=5):
+        ''' find days after of date  '''
         days_lst = [date]
         while len(days_lst) != day_count:
             date = self.date_generator(date)
@@ -185,3 +193,76 @@ class AkhzaDataBase:
                 day = str(temp)
 
         return year+'-'+month+'-'+day
+
+    def find_trades_by_stock_id_blow_ytm(self, stock_id, date, ytm):
+        ''' fetch all trades by specified stock_id and date '''
+        temp = []
+        lst = self.make_query(
+            '''
+                select * from trades where stock_id = '''+str(stock_id) +
+            '''and date_shamsi= \''''+date+'\' and ytm < '''+str(ytm) + 'order by ytm desc')
+        for ele in lst:
+            temp.append(ele[0:6])
+        return temp
+
+    def find_trades_by_stock_id_above_price(self, stock_id, date, price):
+        ''' fetch all trades by specified stock_id and date and price '''
+        price = 1.002*price
+        temp = []
+        lst = self.make_query(
+            '''
+                select * from trades where stock_id = '''+str(stock_id) +
+            '''and date_shamsi= \''''+date+'\' and volume>100 and price > '''+str(price) + 'order by ytm desc')
+        for ele in lst:
+            temp.append(ele[0:6])
+        return temp
+
+    def add_record_to_analyze_options(self, buy_option, sell_option, delta_date):
+        trade_id_buy = buy_option[0]
+        trade_id_sell = sell_option[0]
+        delta_price = sell_option[3]-buy_option[3]
+        delta_ytm = buy_option[5]-sell_option[5]
+        profit_percent = (delta_price/buy_option[3])*100
+        self.make_query(
+            '''
+            insert into analyze_options values (DEFAULT, '''+str(trade_id_buy)+','+str(trade_id_sell) +
+            ','+str(delta_price)+','+str(delta_ytm)+',' +
+            str(delta_date)+',' + str(profit_percent)+')'
+        )
+        print("Record Added to ANALYZE_OPTIONS.")
+
+    def add_record_to_trade_history(self, stock_id, buy_price, volume, buy_date, buy_time, buy_ytm):
+        try:
+            self.make_query('''
+            insert into trade_history values (DEFAULT,'''+str(stock_id)+','+str(buy_price)+','+str(volume) +
+                            ','+'\''+str(buy_date)+'\''+','+'\''+str(buy_time)+'\''+','+str(buy_ytm)+')')
+            print("Record Added  to TRADE_HISTORY.")
+        except:
+            pass
+
+    def show_bought_stock_list(self):
+        bought_stocks = []
+        query = self.make_query(
+            '''select HISTORY_ID from trade_history where SELL_PRICE IS NULL''')
+        for ele in range(len(query)):
+            bought_stocks.append(query[ele][0])
+        return bought_stocks
+
+    def fetch_bought_stock_data(self, bought_stocks):
+        bought_stocks_list = []
+        for history_id in bought_stocks:
+            query = self.make_query(
+                '''select stock_id,buy_price from trade_history where history_id= ''' + str(history_id))[0]
+            bought_stocks_list.append([query[0], str(query[1])])
+        return bought_stocks_list
+
+    def bought_stocks(self):
+        try:
+            return self.fetch_bought_stock_data(self.show_bought_stock_list())
+        except:
+            return []
+
+
+obj = AkhzaDataBase()
+# obj.create_table()
+print(obj.bought_stocks())
