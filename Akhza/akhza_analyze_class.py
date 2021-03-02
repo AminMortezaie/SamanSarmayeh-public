@@ -29,8 +29,7 @@ class Analyze:
             for k in range(len(self.db.return_list_above_average(date))):
                 spec_trade = self.db.return_list_above_average(date)[k]
                 average_ytm = self.db.average_ytm_by_date(date)
-                print(spec_trade)
-                print(average_ytm)
+                print("trade id: "+str(spec_trade[0])+"\tstock id: "+str(spec_trade[1])+"\tdate:"+str(date))
                 stock_id = spec_trade[1]
                 price = spec_trade[3]
                 for ele in range(len(self.db.calculate_days_after(stock_id, date, 5))):
@@ -67,7 +66,7 @@ class Analyze:
 
 
 obj = Analyze()
-date = '1399-01-29'
-
-obj.run_matching_algorithm('1399-07-01','1399-07-01')
-
+date = '1399-01-01'
+obj.run_matching_algorithm('1399-01-01','1399-04-01')
+obj.run_matching_algorithm('1399-01-04','1399-08-01')
+obj.run_matching_algorithm('1399-08-01','1399-12-01')
