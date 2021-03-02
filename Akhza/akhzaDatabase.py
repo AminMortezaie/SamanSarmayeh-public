@@ -217,20 +217,28 @@ class AkhzaDataBase:
             temp.append(ele[0:6])
         return temp
 
+    def is_exist_in_analyze_options(self,trade_id_buy,trade_id_sell):
+        if len(self.make_query('''select * from analyze_options where trade_id_buy='''+str(trade_id_buy)+ ''' and trade_id_sell='''+str(trade_id_sell)))>0:
+            return True
+        else:
+            return False
+
     def add_record_to_analyze_options(self, buy_option, sell_option, delta_date):
         trade_id_buy = buy_option[0]
         trade_id_sell = sell_option[0]
         delta_price = sell_option[3]-buy_option[3]
         delta_ytm = buy_option[5]-sell_option[5]
         profit_percent = (delta_price/buy_option[3])*100
-        self.make_query(
-            '''
-            insert into analyze_options values (DEFAULT, '''+str(trade_id_buy)+','+str(trade_id_sell) +
-            ','+str(delta_price)+','+str(delta_ytm)+',' +
-            str(delta_date)+',' + str(profit_percent)+')'
-        )
-        print("Record Added to ANALYZE_OPTIONS.")
-
+        if not self.is_exist_in_analyze_options(trade_id_buy,trade_id_sell):
+            self.make_query(
+                '''
+                insert into analyze_options values (DEFAULT, '''+str(trade_id_buy)+','+str(trade_id_sell) +
+                ','+str(delta_price)+','+str(delta_ytm)+',' +
+                str(delta_date)+',' + str(profit_percent)+')'
+            )
+            print("Record Added to ANALYZE_OPTIONS.")
+        else: 
+            return -1
     def add_record_to_trade_history(self, stock_id, buy_price, volume, buy_date, buy_time, buy_ytm):
         try:
             self.make_query('''
@@ -263,6 +271,6 @@ class AkhzaDataBase:
             return []
 
 
-obj = AkhzaDataBase()
+# obj = AkhzaDataBase()
 # obj.create_table()
-print(obj.bought_stocks())
+# print (obj.is_exist_in_analyze_options(135583,135581))
