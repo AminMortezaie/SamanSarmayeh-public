@@ -56,7 +56,6 @@ class Broker:
         # choose stock
         self.driver.switch_to.window(
             self.driver.window_handles[0])
-        flag = True
 
         try:
             self.loadElement(
@@ -69,7 +68,6 @@ class Broker:
                 """//*[@id="buy_1"]/button[1]""", mode='super_fast').click()
             self.loadElement(
                 """//*[@id="popupOrder1"]/div[1]/div[1]/button/span""", mode='super_fast').click()
-            flag = False
         except:
             self.driver.refresh()
 
@@ -81,15 +79,19 @@ class Broker:
     def sell_stock(self, index, stock_id, price, volume):
         self.driver.switch_to.window(
             self.driver.window_handles[0])
-        self.loadElement(
-            """//*[@id="marketViewTable"]/tbody/tr["""+str(stock_id)+"""]/td[1]/div[5]/div/div[2]/mat-icon[2]/i""").click()
-        self.loadElement("""//*[@id="orderPrice"]""").send_keys(price)
-        self.loadElement("""//*[@id="mat-input-18"]""").send_keys(volume)
-        self.loadElement("""//*[@id="buy_1"]/button[1]""").click()
-        self.loadElement(
-            """//*[@id="popupOrder1"]/div[1]/div[1]/button/span""").click()
-        self.bought_stocks.append([stock_id, price])
-        self.driver.refresh()
+        try:
+            self.loadElement(
+                """//*[@id="marketViewTable"]/tbody/tr["""+str(stock_id)+"""]/td[1]/div[5]/div/div[2]/mat-icon[2]/i""", mode='super_fast').click()
+            self.loadElement("""//*[@id="orderPrice"]""",
+                             mode='super_fast').send_keys(price)
+            self.loadElement("""//*[@id="mat-input-18"]""",
+                             mode='super_fast').send_keys(volume)
+            self.loadElement(
+                """//*[@id="buy_1"]/button[1]""", mode='super_fast').click()
+            self.loadElement(
+                """//*[@id="popupOrder1"]/div[1]/div[1]/button/span""", mode='super_fast').click()
+        except:
+            self.driver.refresh()
         self.loadElement(
             """//*[@id="mat-radio-7"]/label/div[1]/div[1]""").click()
 
