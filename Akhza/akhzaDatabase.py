@@ -217,8 +217,8 @@ class AkhzaDataBase:
             temp.append(ele[0:6])
         return temp
 
-    def is_exist_in_analyze_options(self,trade_id_buy,trade_id_sell):
-        if len(self.make_query('''select * from analyze_options where trade_id_buy='''+str(trade_id_buy)+ ''' and trade_id_sell='''+str(trade_id_sell)))>0:
+    def is_exist_in_analyze_options(self, trade_id_buy, trade_id_sell):
+        if len(self.make_query('''select * from analyze_options where trade_id_buy='''+str(trade_id_buy) + ''' and trade_id_sell='''+str(trade_id_sell))) > 0:
             return True
         else:
             return False
@@ -229,7 +229,7 @@ class AkhzaDataBase:
         delta_price = sell_option[3]-buy_option[3]
         delta_ytm = buy_option[5]-sell_option[5]
         profit_percent = (delta_price/buy_option[3])*100
-        if not self.is_exist_in_analyze_options(trade_id_buy,trade_id_sell):
+        if not self.is_exist_in_analyze_options(trade_id_buy, trade_id_sell):
             self.make_query(
                 '''
                 insert into analyze_options values (DEFAULT, '''+str(trade_id_buy)+','+str(trade_id_sell) +
@@ -237,9 +237,10 @@ class AkhzaDataBase:
                 str(delta_date)+',' + str(profit_percent)+')'
             )
             print("Record Added to ANALYZE_OPTIONS.")
-        else: 
+        else:
             return -1
-    def add_record_to_trade_history(self, stock_id, buy_price, volume, buy_date, buy_time, buy_ytm):
+
+    def add_buy_record_to_trade_history(self, stock_id, buy_price, volume, buy_date, buy_time, buy_ytm):
         try:
             self.make_query('''
             insert into trade_history values (DEFAULT,'''+str(stock_id)+','+str(buy_price)+','+str(volume) +
@@ -247,6 +248,18 @@ class AkhzaDataBase:
             print("Record Added  to TRADE_HISTORY.")
         except:
             pass
+
+    def add_sell_record_to_trade_history(self, stock_id, buy_price, sell_price, volume, sell_date, sell_time, sell_ytm):
+        try:
+            history_id = self.make_query('''
+                select history_id from trade_history where sell_date is null and stock_id ='''+str(stock_id)+'''and buy_price='''+str(buy_price))[0][0]
+            profit_percent = (
+                (int(sell_price)-int(buy_price))/int(buy_price))*100
+            self.make_query('''
+                update trade_history set sell_price='''+str(sell_price) + ',sell_date=' + '\''+str(sell_date)+'\''+',sell_time= '+'\''+str(sell_time)+'\'' + ',sell_ytm='+str(sell_ytm)+',profit_percent='+str(profit_percent)+'''where history_id=44''')
+        except:
+            print("exception in database.")
+        pass
 
     def show_bought_stock_list(self):
         bought_stocks = []
@@ -258,11 +271,13 @@ class AkhzaDataBase:
 
     def fetch_bought_stock_data(self, bought_stocks):
         bought_stocks_list = []
+        buy_history = []
         for history_id in bought_stocks:
             query = self.make_query(
-                '''select stock_id,buy_price from trade_history where history_id= ''' + str(history_id))[0]
+                '''select stock_id, buy_price, buy_time, volume from trade_history where history_id= ''' + str(history_id))[0]
             bought_stocks_list.append([query[0], str(query[1])])
-        return bought_stocks_list
+            buy_history.append([query[0], str(query[1]), query[2], query[3]])
+        return bought_stocks_list, buy_history
 
     def bought_stocks(self):
         try:
