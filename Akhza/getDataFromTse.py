@@ -11,17 +11,18 @@ import plotly.graph_objects as go
 import json
 from akhzaDatabase import AkhzaDataBase
 from broker_class import Broker
+from broker_control_class import BrokerControll
 
 
 class OnlineData:
     def __init__(self):
         Path = 'chromedriver.exe'
         self.driver = webdriver.Chrome(Path)
-        self.broker = Broker(self.driver)
         self.db = AkhzaDataBase()
+        self.broker_controller = BrokerControll(self.driver)
         self.color = "black"
         self.tim = 0.0001
-        self.dataNumber = 35
+        self.dataNumber = 3
         self.VALUES = []
         self.nullStocks = []
         self.fullTradeHistory = []
@@ -32,8 +33,10 @@ class OnlineData:
         self.totalCounter = 0
         self.stockNumber = 0
         self.tc = 0
-        self.value1 = 0
-        self.volume1 = 0
+        self.value_buy_1 = 0
+        self.value_sell_1 = 0
+        self.volume_buy_1 = 0
+        self.volume_sell_1 = 0
         self.flag = self.dataNumber
         self.minusYtm = 0
         self.averageFlag = False
@@ -43,14 +46,20 @@ class OnlineData:
             self.data = json.load(f)
 
     def findYtmAverage(self):
-        sum = 0
-        count = self.dataNumber
+        sum_sell, sum_buy = 0, 0
+        count_sell = self.dataNumber
+        count_buy = count_sell
         for number in range(self.dataNumber):
-            if(self.VALUES[number-1][2] == 0):
-                count -= 1
-            if(self.VALUES[number-1][2] != -0.0):
-                sum += self.VALUES[number-1][2]
-        return sum/count
+            if(self.VALUES[number-1][0][2] == 0):
+                count_sell -= 1
+            if(self.VALUES[number-1][1][2] == 0):
+                count_buy -= 1
+
+            if(self.VALUES[number-1][0][2] != -0.0):
+                sum_sell += self.VALUES[number-1][0][2]
+            if(self.VALUES[number-1][1][2] != -0.0):
+                sum_buy += self.VALUES[number-1][1][2]
+        return sum_sell/count_sell, sum_buy/count_buy
 
     def convertToDate(self, str):
         dat = str.split("-")
@@ -104,8 +113,6 @@ class OnlineData:
         return WebDriverWait(self.driver, 2).until(
             EC.presence_of_element_located(
                 (By.XPATH, xpath)))
-
-    # Print iterations progress
 
     def printProgressBar(self, iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
         """
@@ -499,55 +506,84 @@ class OnlineData:
         self.driver.switch_to.window(
             self.driver.window_handles[self.counter+1])
 
-        value = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(
-                (By.XPATH, '/html/body/div[4]/form/div[3]/div[2]/div[2]/div[2]/div/table/tbody/tr[2]/td[4]')))
+        value_buy = self.loadElement(
+            '''//*[@id="bl"]/tr[2]/td[3]''', mode='fast')
+        value_sell = self.loadElement(
+            '''//*[@id="bl"]/tr[2]/td[4]''', mode='fast')
 
-        if(not isinstance(value.text, str)):
-            self.value1 = 0
-        elif(value.text != '' and value.text != ' '):
-            self.value1 = self.convertToValue(value.text)
-        elif(value.text == ' '):
-            self.value1 = 1000000
+        if(not isinstance(value_sell.text, str)):
+            self.value_sell_1 = 0
+        elif(value_sell.text != '' and value_sell.text != ' '):
+            self.value_sell_1 = self.convertToValue(value_sell.text)
+        elif(value_sell.text == ' '):
+            self.value_sell_1 = 1000000
 
-        volume = self.loadElement(
-            '/html/body/div[4]/form/div[3]/div[2]/div[2]/div[2]/div/table/tbody/tr[2]/td[5]')
+        if(not isinstance(value_buy.text, str)):
+            self.value_buy_1 = 0
+        elif(value_buy.text != '' and value_buy.text != ' '):
+            self.value_buy_1 = self.convertToValue(value_buy.text)
+        elif(value_buy.text == ' '):
+            self.value_buy_1 = 1000000
 
-        if(not isinstance(volume.text, str)):
-            self.volume1 = 0
-        elif(volume.text != '' and volume.text != ' '):
-            self.volume1 = self.convertToValue(volume.text)
-        elif(volume.text == ' '):
-            self.volume1 = 1000000
+        volume_sell = self.loadElement(
+            '''//*[@id="bl"]/tr[2]/td[5]''', mode='fast')
+        volume_buy = self.loadElement(
+            '''//*[@id="bl"]/tr[2]/td[2]''', mode='fast')
+
+        if(not isinstance(volume_sell.text, str)):
+            self.volume_sell_1 = 0
+        elif(volume_sell.text != '' and volume_sell.text != ' '):
+            self.volume_sell_1 = self.convertToValue(volume_sell.text)
+        elif(volume_sell.text == ' '):
+            self.volume_sell_1 = 1000000
+
+        if(not isinstance(volume_buy.text, str)):
+            self.volume_buy_1 = 0
+        elif(volume_buy.text != '' and volume_buy.text != ' '):
+            self.volume_buy_1 = self.convertToValue(volume_buy.text)
+        elif(volume_buy.text == ' '):
+            self.volume_buy_1 = 1000000
 
         if(self.flag > 0):
-            self.VALUES.append([str(self.value1),
-                                str(self.volume1), 0.1])
+            self.VALUES.append([[str(self.value_sell_1),
+                                 str(self.volume_sell_1), 0.1], [str(self.value_buy_1),
+                                                                 str(self.volume_buy_1), 0.1]])
             self.flag -= 1
         else:
-            self.VALUES[self.counter][0] = str(self.value1)
-            self.VALUES[self.counter][1] = str(self.volume1)
-            self.VALUES[self.counter][2] = self.db.find_ytm_with_date(
-                str(self.dailyDate), self.db.fetch_payment_date_from_database(self.counter+1), self.value1)
-        print(self.VALUES)
+            self.VALUES[self.counter][0][0] = str(self.value_sell_1)
+            self.VALUES[self.counter][0][1] = str(self.volume_sell_1)
+            self.VALUES[self.counter][0][2] = self.db.find_ytm_with_date(
+                str(self.dailyDate), self.db.fetch_payment_date_from_database(self.counter+1), self.value_sell_1)
+
+            self.VALUES[self.counter][1][0] = str(self.value_buy_1)
+            self.VALUES[self.counter][1][1] = str(self.volume_buy_1)
+            self.VALUES[self.counter][1][2] = self.db.find_ytm_with_date(
+                str(self.dailyDate), self.db.fetch_payment_date_from_database(self.counter+1), self.value_buy_1)
+
+        self.broker_controller.set_values(self.VALUES)
+        self.broker_controller.set_counter(self.counter)
+
         if(self.counter == self.dataNumber-1):
             self.averageFlag = True
         if(self.averageFlag):
-            # print("\n\n")
-            # print("Ytm Average: " + str(self.findYtmAverage()))
-            # print("-----------S I G N A L---------------")
-            s = ''
-            for iterator in range(len(self.VALUES)):
-                try:
-                    if(29 > self.VALUES[iterator][2] > 24):
-                        self.broker.buy_stock(self.counter+1,
-                                              iterator+1, self.VALUES[iterator][0], 3)
-                        s += "StockNumber:" + str(self.db.make_query(
-                            """select stock_name from stock where stock_id= """+str(iterator+1))[0][0])+'\n' +\
-                            "Price:  "+str(self.VALUES[iterator][0])+"\n" +\
-                            "StockYtm: " + str(self.VALUES[iterator][2])+"\n" +\
-                            "-------------------------"+'\n'
-                        print(s)
-                except:
-                    pass
-            return s
+            print("\n\n")
+            print("Ytm Average Sell: " + str(self.findYtmAverage()[0]))
+            print("Ytm Average Buy: " + str(self.findYtmAverage()[1]))
+
+            print("-----------S I G N A L---------------")
+            print("boughtStock: "+str(self.broker_controller.bought_stocks))
+
+
+obj = OnlineData()
+obj.start()
+co = 0
+count = obj.dataNumber
+print(count)
+while co < obj.dataNumber:
+    obj.run()
+    co += 1
+    time.sleep(5)
+
+# while True:
+while True:
+    obj.run()

@@ -8,7 +8,7 @@ from datetime import date
 class AkhzaDataBase:
     def __init__(self):
         try:
-            # Connect to an existing database
+            """ Connect to an existing database """
             self.connection = psycopg2.connect(user="postgres",
                                                password="Amin4416",
                                                host="localhost",
@@ -27,18 +27,17 @@ class AkhzaDataBase:
     def make_query(self, query):
         self.cursor.execute(query)
         self.connection.commit()
-        print("query successfully in PostgreSQL ")
         return self.cursor.fetchall()
 
     def create_table(self, table_query):
-        # take name and table query.
+        """ take name and table query."""
         create_table_query = table_query
         self.cursor.execute(create_table_query)
         self.connection.commit()
         print("Table created successfully in PostgreSQL ")
 
     def add_record_from_file(self, stock_id, name_of_file):
-        # this method adds data from files to main database
+        """ this method adds data from files to main database """
         save_path = 'DetailsData\\stock' + str(stock_id)
         completeName = os.path.join(save_path, name_of_file)
         file1 = open(completeName, 'r')
@@ -64,7 +63,7 @@ class AkhzaDataBase:
             print("Record inserted successfully")
 
     def fetch_payment_date_from_database(self, stock_id):
-        # find payment_date from database
+        """ find payment_date from database """
         select_query = """select payment_date from stock where stock_id= """ + \
             str(stock_id)
         self.cursor.execute(select_query)
@@ -72,7 +71,7 @@ class AkhzaDataBase:
         return self.cursor.fetchall()[0][0]
 
     def is_exist_date(self, stock_id, date):
-        # find out the date is exist in db or not.
+        """ find out the date is exist in db or not."""
         select_query = """select date_shamsi from trades where stock_id="""+str(stock_id) + """and date_shamsi= """ + \
             "\'"+str(date)+"\'"
         self.cursor.execute(select_query)
@@ -115,7 +114,178 @@ class AkhzaDataBase:
             print('This date is exist.')
 
     def transfer_old_record(self):
-        # this method will be implemented later
-        # transfer data of share that has been expired to old tables(old_stock && old_trades).
-        # todo
+        """ this method will be implemented later
+            transfer data of share that has been expired to old tables(old_stock && old_trades).
+            todo
+        """
         pass
+
+    def average_ytm_by_date(self, date):
+        """ date must be like '1399-08-28' """
+        return self.make_query(
+            ''' select avg(ytm) from trades where date_shamsi = \''''+str(date)+"\'")[0][0]
+
+    def list_of_data_above_average(self, ytm, date):
+        """ shows list of data above average in a specified date
+            take ytm of average and date parameters.
+         """
+        return self.make_query(
+            '''select * from trades where date_shamsi= \'''' +
+            str(date)+"\' and volume>100 and ytm>" +
+            str(ytm)+'''order by ytm desc''')
+
+    def return_list_above_average(self, date):
+        ''' this makes query and find the list above average or 21
+            in fact this is buy list
+         '''
+        lst = []
+        try:
+            query_result = self.list_of_data_above_average(
+                min(self.average_ytm_by_date(date), 21), date)
+        except:
+            query_result = self.list_of_data_above_average(
+                21, date)
+
+        co = 0
+        for ele in query_result:
+            co += 1
+            lst.append(ele[0:6])
+        return lst
+
+    def calculate_days_after(self, stock_id, date, day_count=5):
+        ''' find days after of date  '''
+        days_lst = [date]
+        while len(days_lst) != day_count:
+            date = self.date_generator(date)
+            if int(self.make_query(
+                    '''select count(*) from trades where stock_id = '''+str(stock_id) +
+                    '''and date_shamsi =\''''+str(date)+'''\'   ''')[0][0]) != 0:
+                days_lst.append(date)
+        return days_lst
+
+    def date_generator(self, date):
+        ''' date = '1399-08-28'
+            it generates one day after date
+         '''
+        arr = date.split("-")
+        year = arr[0]
+        month = arr[1]
+        day = arr[2]
+
+        if int(month) == 12 and (int(day) == 30 or int(day) == 31):
+            year = str(int(year) + 1)
+            day = '01'
+            month = '01'
+
+        elif int(day) == 31:
+            temp = int(month)+1
+            if temp < 10:
+                month = '0'+str(temp)
+                day = '01'
+            else:
+                month = str(temp)
+                day = '01'
+        else:
+            temp = int(day)+1
+            if temp < 10:
+                day = '0'+str(temp)
+            else:
+                day = str(temp)
+
+        return year+'-'+month+'-'+day
+
+    def find_trades_by_stock_id_blow_ytm(self, stock_id, date, ytm):
+        ''' fetch all trades by specified stock_id and date '''
+        temp = []
+        lst = self.make_query(
+            '''
+                select * from trades where stock_id = '''+str(stock_id) +
+            '''and date_shamsi= \''''+date+'\' and ytm < '''+str(ytm) + 'order by ytm desc')
+        for ele in lst:
+            temp.append(ele[0:6])
+        return temp
+
+    def find_trades_by_stock_id_above_price(self, stock_id, date, price):
+        ''' fetch all trades by specified stock_id and date and price '''
+        price = 1.002*price
+        temp = []
+        lst = self.make_query(
+            '''
+                select * from trades where stock_id = '''+str(stock_id) +
+            '''and date_shamsi= \''''+date+'\' and volume>100 and price > '''+str(price) + 'order by ytm desc')
+        for ele in lst:
+            temp.append(ele[0:6])
+        return temp
+
+    def is_exist_in_analyze_options(self, trade_id_buy, trade_id_sell):
+        if len(self.make_query('''select * from analyze_options where trade_id_buy='''+str(trade_id_buy) + ''' and trade_id_sell='''+str(trade_id_sell))) > 0:
+            return True
+        else:
+            return False
+
+    def add_record_to_analyze_options(self, buy_option, sell_option, delta_date):
+        trade_id_buy = buy_option[0]
+        trade_id_sell = sell_option[0]
+        delta_price = sell_option[3]-buy_option[3]
+        delta_ytm = buy_option[5]-sell_option[5]
+        profit_percent = (delta_price/buy_option[3])*100
+        if not self.is_exist_in_analyze_options(trade_id_buy, trade_id_sell):
+            self.make_query(
+                '''
+                insert into analyze_options values (DEFAULT, '''+str(trade_id_buy)+','+str(trade_id_sell) +
+                ','+str(delta_price)+','+str(delta_ytm)+',' +
+                str(delta_date)+',' + str(profit_percent)+')'
+            )
+            print("Record Added to ANALYZE_OPTIONS.")
+        else:
+            return -1
+
+    def add_buy_record_to_trade_history(self, stock_id, buy_price, volume, buy_date, buy_time, buy_ytm):
+        try:
+            self.make_query('''
+            insert into trade_history values (DEFAULT,'''+str(stock_id)+','+str(buy_price)+','+str(volume) +
+                            ','+'\''+str(buy_date)+'\''+','+'\''+str(buy_time)+'\''+','+str(buy_ytm)+')')
+            print("Record Added  to TRADE_HISTORY.")
+        except:
+            pass
+
+    def add_sell_record_to_trade_history(self, stock_id, buy_price, sell_price, volume, sell_date, sell_time, sell_ytm):
+        try:
+            history_id = self.make_query('''
+                select history_id from trade_history where sell_date is null and stock_id ='''+str(stock_id)+'''and buy_price='''+str(buy_price))[0][0]
+            profit_percent = (
+                (int(sell_price)-int(buy_price))/int(buy_price))*100
+            self.make_query('''
+                update trade_history set sell_price='''+str(sell_price) + ',sell_date=' + '\''+str(sell_date)+'\''+',sell_time= '+'\''+str(sell_time)+'\'' + ',sell_ytm='+str(sell_ytm)+',profit_percent='+str(profit_percent)+'''where history_id=44''')
+        except:
+            print("exception in database.")
+        pass
+
+    def show_bought_stock_list(self):
+        bought_stocks = []
+        query = self.make_query(
+            '''select HISTORY_ID from trade_history where SELL_PRICE IS NULL''')
+        for ele in range(len(query)):
+            bought_stocks.append(query[ele][0])
+        return bought_stocks
+
+    def fetch_bought_stock_data(self, bought_stocks):
+        bought_stocks_list = []
+        buy_history = []
+        for history_id in bought_stocks:
+            query = self.make_query(
+                '''select stock_id, buy_price, buy_time, volume from trade_history where history_id= ''' + str(history_id))[0]
+            bought_stocks_list.append([query[0], str(query[1])])
+            buy_history.append([query[0], str(query[1]), query[2], query[3]])
+        return bought_stocks_list, buy_history
+
+    def bought_stocks(self):
+        try:
+            return self.fetch_bought_stock_data(self.show_bought_stock_list())
+        except:
+            return []
+
+
+# obj = AkhzaDataBase()
+# obj.create_table()
+# print (obj.is_exist_in_analyze_options(135583,135581))
