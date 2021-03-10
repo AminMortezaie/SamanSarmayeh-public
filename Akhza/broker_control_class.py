@@ -20,6 +20,8 @@ class BrokerControll:
             0], self.db.bought_stocks()[1]
         print("fetchedBoughtStocks: " +
               str(self.bought_stocks))
+        print("fetchedBuyHistory: " +
+              str(self.buy_history))
 
     def today(self):
         today = Gregorian(date.today().strftime(
@@ -60,24 +62,28 @@ class BrokerControll:
 
     def find_in_buy_history(self, stock_id, mode='sell'):
         for trade in self.buy_history:
-            if trade[0] == stock_id:
+            print(trade[0], stock_id)
+            if str(trade[0]) == str(stock_id):
                 if mode == 'sell':
                     return trade
                 elif mode == 'buy':
                     return True
-            return False
+        return False
 
     def buy_stock(self, index, stock_id, price, volume, ytm):
-        if not self.find_in_buy_history(stock_id, mode='buy'):
-            self.broker.buy_stock(index, stock_id, price, volume)
-            self.bought_stocks.append([stock_id, price])
-            self.db.add_buy_record_to_trade_history(
-                stock_id, price, volume, str(self.today()), str(self.current_time()), ytm)
-            self.buy_history.append(
-                [stock_id, price, str(self.current_time()), volume])
-            print(self.buy_history)
+        if len(self.bought_stocks) < 4:
+            if not self.find_in_buy_history(stock_id, mode='buy'):
+                self.broker.buy_stock(index, stock_id, price, volume)
+                self.bought_stocks.append([stock_id, price])
+                self.db.add_buy_record_to_trade_history(
+                    stock_id, price, volume, str(self.today()), str(self.current_time()), ytm)
+                self.buy_history.append(
+                    [stock_id, price, str(self.current_time()), volume])
+                print(self.buy_history)
+            else:
+                print("trade for this stock_id is exist!")
         else:
-            print("trade for this stock_id is exist!")
+            print("should be sell first.")
 
     def sell_stock(self, index, stock_id, buy_price, sell_price, volume, ytm):
         self.broker.sell_stock(index, stock_id, sell_price, volume)
@@ -96,7 +102,7 @@ class BrokerControll:
                 if(29 > self.VALUES[iterator][0][2] > 20):
                     if [iterator+1, self.VALUES[iterator][0][0]] not in self.bought_stocks:
                         self.buy_stock(self.counter+1,
-                                       iterator+1, self.VALUES[iterator][0][0], 3, self.VALUES[iterator][0][2])
+                                       iterator+1, self.VALUES[iterator][0][0], 1, self.VALUES[iterator][0][2])
             except:
                 print("Im in buy exception")
                 pass
@@ -109,13 +115,20 @@ class BrokerControll:
                 sell_price = self.VALUES[iterator][1][0]
                 stock_id = iterator+1
                 sell_ytm = self.VALUES[iterator][1][2]
+                print("stock_id:")
+                print(stock_id)
+                print("im before fetch")
                 trade = self.find_in_buy_history(stock_id)
+                print("trade is fetched")
+                print(trade)
                 buy_price = trade[1]
+                print("this is specify trade:")
+                print(trade)
                 if trade != False:
                     if int(sell_price) > int(buy_price)*1.004:
                         print("sell position accepted.")
                         self.sell_stock(self.counter+1,
-                                        stock_id, buy_price, sell_price, 3, sell_ytm)
+                                        stock_id, buy_price, sell_price, trade[3], sell_ytm)
                     else:
                         print("pass this.")
             except:

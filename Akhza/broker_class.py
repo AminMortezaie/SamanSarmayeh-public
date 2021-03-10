@@ -87,7 +87,7 @@ class Broker:
             self.loadElement("""//*[@id="mat-input-18"]""",
                              mode='super_fast').send_keys(volume)
             self.loadElement(
-                """//*[@id="buy_1"]/button[1]""", mode='super_fast').click()
+                """//*[@id="sell_1"]/button[1]""", mode='super_fast').click()
             self.loadElement(
                 """//*[@id="popupOrder1"]/div[1]/div[1]/button/span""", mode='super_fast').click()
         except:
