@@ -285,7 +285,44 @@ class AkhzaDataBase:
         except:
             return []
 
+    def make_calculate_count(self,first_ytm,second_ytm,mode='buy'):
+        try:
+            if mode =='buy':
+                return self.make_query('''
+                select count(option_id) from analyze_options t1 
+                right join trades t2 on t1.trade_id_buy = t2.trade_id 
+                left join trades t3 on t1.trade_id_sell = t3.trade_id  where delta_date = '0' and t2.ytm<'''+str(second_ytm)+ ''' and t2.ytm>'''+str(first_ytm))[0][0]
+            elif mode =='sell':
+                return self.make_query('''
+                select count(option_id) from analyze_options t1 
+                right join trades t2 on t1.trade_id_buy = t2.trade_id 
+                left join trades t3 on t1.trade_id_sell = t3.trade_id  where delta_date = '0' and t3.ytm<'''+str(second_ytm)+ ''' and t3.ytm>'''+str(first_ytm))[0][0]
+        except:
+            print('error in database fetch!')
 
+    def make_array_counted_values_ytm(self):
+        name=[]
+        lst_buy=[]
+        lst_sell=[]
+
+        temp = 0
+        for i in range(70):
+            if i==0:
+                name.append(str(round(temp, 2))+","+str(round(temp+14, 2)))
+                lst_buy.append(self.make_calculate_count(temp,temp+14))
+                lst_sell.append(self.make_calculate_count(temp,temp+14,'sell'))
+                temp =14
+            if i==1 or i==2:
+                name.append(str(round(temp, 2))+","+str(round(temp+2, 2)))
+                lst_buy.append(self.make_calculate_count(temp,temp+2))
+                lst_sell.append(self.make_calculate_count(temp,temp+2,'sell'))
+                temp+=2
+            else:
+                name.append(str(round(temp, 2))+","+str(round(temp+0.1, 2)))
+                lst_buy.append(self.make_calculate_count(temp,temp+0.5))
+                lst_sell.append(self.make_calculate_count(temp,temp+0.5,'sell'))
+                temp+=0.1
+        return name,lst_buy,lst_sell
 # obj = AkhzaDataBase()
 # obj.create_table()
 # print (obj.is_exist_in_analyze_options(135583,135581))
