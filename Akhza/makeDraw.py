@@ -6,6 +6,7 @@ import os
 from os import listdir
 from os.path import isfile, join
 import json
+from akhzaDatabase import AkhzaDataBase
 
 
 color = 'black'
@@ -401,11 +402,12 @@ def plotForAll(arrayForAll):
     for array in arrayForAll:
         # array[0] =xArray , array[1]= yArray, array[2]= name, array[3]= color
         fig.add_trace(go.Scatter(x=array[1], y=array[0], name=array[2],
-                                 line=dict(color=array[3], width=7)))
+                                 line=dict(color=array[3], width=5)))
         fig.update_layout(title="title",
-                          xaxis_title=array[2],
+                          xaxis_title='YTM',
                           yaxis_title="yLabel")
     fig.show()
+
 
 
 def makeYtmArray():
@@ -427,5 +429,9 @@ def fetchYtmFromFile(stockNumber):
             print(name_of_file)
             print(mainArray[1].split("Date: ")[1])
 
+obj = AkhzaDataBase()
+total=obj.make_array_counted_values_ytm()
+# array[1] = name , array[0]= lst_buy , array[2]= 'title', array[3]=color
+arrayForAll = [[total[1],total[0],'variety by YTM BUY','#028090'],[total[2],total[0],'variety by YTM SELL',"#AADDAA"]]
 
-fetchYtmFromFile(1)
+plotForAll(arrayForAll)
