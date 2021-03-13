@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class Fetch_Share_Holder_Data():
     def __init__(self):
-        self.chrome_webDriver = "C:\Program Files (x86)\chromedriver.exe"
+        self.chrome_webDriver = "chromedriver.exe"
         self.driver = webdriver.Chrome(self.chrome_webDriver)
         self.driver.get("http://www.tsetmc.com/Loader.aspx?ParTree=15")
     def loadElement(self,xpath, mode="slow"):
