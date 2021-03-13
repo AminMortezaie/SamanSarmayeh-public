@@ -430,8 +430,9 @@ def fetchYtmFromFile(stockNumber):
             print(mainArray[1].split("Date: ")[1])
 
 obj = AkhzaDataBase()
-total=obj.make_array_counted_values_ytm()
+# total=obj.make_array_counted_values_ytm()
 # array[1] = name , array[0]= lst_buy , array[2]= 'title', array[3]=color
-arrayForAll = [[total[1],total[0],'variety by YTM BUY','#028090'],[total[2],total[0],'variety by YTM SELL',"#AADDAA"]]
-
-plotForAll(arrayForAll)
+# arrayForAll = [[total[1],total[0],'variety by YTM BUY','#028090'],[total[2],total[0],'variety by YTM SELL',"#AADDAA"]]
+profit = obj.make_array_profit_percent()
+# plotForAll(arrayForAll)
+plotter(profit[0],profit[1],"profit","count","Profit/Count")

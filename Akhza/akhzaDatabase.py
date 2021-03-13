@@ -285,7 +285,7 @@ class AkhzaDataBase:
         except:
             return []
 
-    def make_calculate_count(self,first_ytm,second_ytm,mode='buy'):
+    def make_calculate_count_ytm(self,first_ytm,second_ytm,mode='buy'):
         try:
             if mode =='buy':
                 return self.make_query('''
@@ -309,20 +309,45 @@ class AkhzaDataBase:
         for i in range(70):
             if i==0:
                 name.append(str(round(temp, 2))+","+str(round(temp+14, 2)))
-                lst_buy.append(self.make_calculate_count(temp,temp+14))
-                lst_sell.append(self.make_calculate_count(temp,temp+14,'sell'))
+                lst_buy.append(self.make_calculate_count_ytm(temp,temp+14))
+                lst_sell.append(self.make_calculate_count_ytm(temp,temp+14,'sell'))
                 temp =14
             if i==1 or i==2:
                 name.append(str(round(temp, 2))+","+str(round(temp+2, 2)))
-                lst_buy.append(self.make_calculate_count(temp,temp+2))
-                lst_sell.append(self.make_calculate_count(temp,temp+2,'sell'))
+                lst_buy.append(self.make_calculate_count_ytm(temp,temp+2))
+                lst_sell.append(self.make_calculate_count_ytm(temp,temp+2,'sell'))
                 temp+=2
             else:
                 name.append(str(round(temp, 2))+","+str(round(temp+0.1, 2)))
-                lst_buy.append(self.make_calculate_count(temp,temp+0.5))
-                lst_sell.append(self.make_calculate_count(temp,temp+0.5,'sell'))
+                lst_buy.append(self.make_calculate_count_ytm(temp,temp+0.5))
+                lst_sell.append(self.make_calculate_count_ytm(temp,temp+0.5,'sell'))
                 temp+=0.1
         return name,lst_buy,lst_sell
+
+    def make_array_profit_percent(self):
+        lst_res=[]
+        query_res = self.make_query('''
+        select profit_percent from analyze_options t1 
+        right join trades t2 on t1.trade_id_buy = t2.trade_id 
+        left join trades t3 on t1.trade_id_sell = t3.trade_id  where delta_date = '0' 
+        ''')
+        for res in query_res:
+            lst_res.append(res[0])
+
+        profit_array = []
+        name_array=[]
+        for i in range(70):
+            co = 0
+            comp = 0.1
+            name_array.append(str(round(comp+(i-1)*0.1,2))+","+str(round(comp+(i)*0.1,2)))
+            for res in lst_res:
+                if comp+(i-1)*0.1< res <comp+i*0.1:
+                    co+=1
+            profit_array.append(co)
+        return name_array,profit_array
+        
+
+
 # obj = AkhzaDataBase()
 # obj.create_table()
-# print (obj.is_exist_in_analyze_options(135583,135581))
+# obj.make_array_profit_percent()
