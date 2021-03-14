@@ -39,10 +39,14 @@ class GetData_General:
         search_text = self.loadElement("/html/body/div[5]/section/div/input")
         search_text.send_keys(name)
         # get the first result of search
-        first_result = "/html/body/div[5]/section/div/div/div/div[2]/table/tbody/tr[1]/td[1]/a"
+
+        first_result = self.loadElement("/html/body/div[5]/section/div/div/div/div[2]/table/tbody/tr[3]/td[1]/a")
+        print(first_result.text)
+        if ("قدیمی" in first_result.text):
+          first_result = self.loadElement("/html/body/div[5]/section/div/div/div/div[2]/table/tbody/tr[2]/td[1]/a")
         try:
             # go to the first result page
-            self.loadElement(first_result,mode="medium").click()
+            first_result.click()
         except:
             print(" نماد " + str(name) + " یافت نشد! ")
 
