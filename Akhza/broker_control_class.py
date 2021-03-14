@@ -13,6 +13,8 @@ class BrokerControll:
         self.sell_history = []
         self.VALUES = []
         self.counter = 0
+        self.average_buy = 20
+        self.average_sell = 21
         self.bought_stocks = []
         self.broker = Broker(driver)
         self.db = AkhzaDataBase()
@@ -49,6 +51,13 @@ class BrokerControll:
         self.VALUES = values_list
         self.analyze_values()
 
+    
+    def set_average_buy(self,average_buy):
+        self.average_buy = average_buy
+    
+    def set_average_sell(self,average_sell):
+        self.average_sell = average_sell
+        
     def set_counter(self, counter):
         self.counter = counter
 
@@ -99,7 +108,9 @@ class BrokerControll:
         print(self.VALUES)
         for iterator in range(len(self.VALUES)):
             try:
-                if(29 > self.VALUES[iterator][0][2] > 20):
+                print(self.average_sell,self.average_buy)
+                if(self.average_sell > self.VALUES[iterator][0][2] > self.average_buy):
+                    print("Im on the if statement.")
                     if [iterator+1, self.VALUES[iterator][0][0]] not in self.bought_stocks:
                         self.buy_stock(self.counter+1,
                                        iterator+1, self.VALUES[iterator][0][0], 1, self.VALUES[iterator][0][2])
@@ -109,21 +120,13 @@ class BrokerControll:
 
     def run_sell_strategy(self):
         print("hello sell position!")
-        print(self.VALUES)
         for iterator in range(len(self.VALUES)):
             try:
                 sell_price = self.VALUES[iterator][1][0]
                 stock_id = iterator+1
                 sell_ytm = self.VALUES[iterator][1][2]
-                print("stock_id:")
-                print(stock_id)
-                print("im before fetch")
                 trade = self.find_in_buy_history(stock_id)
-                print("trade is fetched")
-                print(trade)
                 buy_price = trade[1]
-                print("this is specify trade:")
-                print(trade)
                 if trade != False:
                     if int(sell_price) > int(buy_price)*1.004:
                         print("sell position accepted.")

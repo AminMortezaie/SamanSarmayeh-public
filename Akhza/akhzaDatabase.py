@@ -285,22 +285,22 @@ class AkhzaDataBase:
         except:
             return []
 
-    def make_calculate_count_ytm(self,first_ytm,second_ytm,mode='buy'):
+    def make_calculate_count_ytm(self,first_ytm,second_ytm,mode='buy',date="1399-01-01"):
         try:
             if mode =='buy':
                 return self.make_query('''
                 select count(option_id) from analyze_options t1 
                 right join trades t2 on t1.trade_id_buy = t2.trade_id 
-                left join trades t3 on t1.trade_id_sell = t3.trade_id  where delta_date = '0' and t2.ytm<'''+str(second_ytm)+ ''' and t2.ytm>'''+str(first_ytm))[0][0]
+                left join trades t3 on t1.trade_id_sell = t3.trade_id  where delta_date = '0' and t2.ytm<'''+str(second_ytm)+ ''' and t2.ytm>'''+str(first_ytm)+'''and t2.date_shamsi>\''''+str(date)+"\'")[0][0]
             elif mode =='sell':
                 return self.make_query('''
                 select count(option_id) from analyze_options t1 
                 right join trades t2 on t1.trade_id_buy = t2.trade_id 
-                left join trades t3 on t1.trade_id_sell = t3.trade_id  where delta_date = '0' and t3.ytm<'''+str(second_ytm)+ ''' and t3.ytm>'''+str(first_ytm))[0][0]
+                left join trades t3 on t1.trade_id_sell = t3.trade_id  where delta_date = '0' and t3.ytm<'''+str(second_ytm)+ ''' and t3.ytm>'''+str(first_ytm)+'''and t3.date_shamsi>\''''+str(date)+"\'")[0][0]
         except:
             print('error in database fetch!')
 
-    def make_array_counted_values_ytm(self,mode='buy'):
+    def make_array_counted_values_ytm(self,mode='buy',date="1399-01-01"):
         name=[]
         lst_buy=[]
         lst_sell=[]
@@ -310,65 +310,66 @@ class AkhzaDataBase:
             if i==0:
                 name.append(str(round(temp, 2))+","+str(round(temp+14, 2)))
                 if mode=="buy":
-                    lst_buy.append(self.make_calculate_count_ytm(temp,temp+14))
+                    lst_buy.append(self.make_calculate_count_ytm(temp,temp+14,'buy',date))
                 elif mode=="sell":
-                    lst_sell.append(self.make_calculate_count_ytm(temp,temp+14,'sell'))
+                    lst_sell.append(self.make_calculate_count_ytm(temp,temp+14,'sell',date))
                 temp =14
             if i==1 or i==2:
                 name.append(str(round(temp, 2))+","+str(round(temp+2, 2)))
                 if mode=="buy":
-                    lst_buy.append(self.make_calculate_count_ytm(temp,temp+2))
+                    lst_buy.append(self.make_calculate_count_ytm(temp,temp+2,'buy',date))
                 elif mode=="sell":
-                    lst_sell.append(self.make_calculate_count_ytm(temp,temp+2,'sell'))
+                    lst_sell.append(self.make_calculate_count_ytm(temp,temp+2,'sell',date))
                 temp+=2
             else:
                 name.append(str(round(temp, 2))+","+str(round(temp+0.1, 2)))
                 if mode=="buy":
-                    lst_buy.append(self.make_calculate_count_ytm(temp,temp+0.5))
+                    lst_buy.append(self.make_calculate_count_ytm(temp,temp+0.5,'buy',date))
                 elif mode=="sell":
-                    lst_sell.append(self.make_calculate_count_ytm(temp,temp+0.5,'sell'))
+                    lst_sell.append(self.make_calculate_count_ytm(temp,temp+0.5,'sell',date))
                 temp+=0.1
         if mode=="buy":
             return name,lst_buy
         elif mode=="sell":
             return name,lst_sell
 
-    def make_array_profit_percent(self,mode="all"):
+    def make_array_profit_percent(self,mode="all",kind="profit_percent",date="1399-01-01",comp="0.2",i_multiple="0.1",count=22):
         lst_res=[]
         if mode=='all':
             query_res = self.make_query('''
-            select profit_percent from analyze_options t1 
+            select '''+str(kind)+''' from analyze_options t1 
             right join trades t2 on t1.trade_id_buy = t2.trade_id 
             left join trades t3 on t1.trade_id_sell = t3.trade_id 
-            ''')
+            '''+'''and t2.date_shamsi>\''''+str(date)+"\'")
             total = int(self.make_query('''
             select count(*) from analyze_options t1 
             right join trades t2 on t1.trade_id_buy = t2.trade_id 
             left join trades t3 on t1.trade_id_sell = t3.trade_id   
-            ''')[0][0])
+            '''+'''and t2.date_shamsi>\''''+str(date)+"\'")[0][0])
         else:
             query_res = self.make_query('''
-            select profit_percent from analyze_options t1 
+            select '''+str(kind)+''' from analyze_options t1 
             right join trades t2 on t1.trade_id_buy = t2.trade_id 
-            left join trades t3 on t1.trade_id_sell = t3.trade_id where delta_date=\''''+str(mode)+"\'")
+            left join trades t3 on t1.trade_id_sell = t3.trade_id where delta_date=\''''+str(mode)+"\'"+'''and t2.date_shamsi>\''''+str(date)+"\'")
             total = int(self.make_query('''
             select count(*) from analyze_options t1 
             right join trades t2 on t1.trade_id_buy = t2.trade_id 
-            left join trades t3 on t1.trade_id_sell = t3.trade_id   where delta_date=\''''+str(mode)+"\'" )[0][0])
-
+            left join trades t3 on t1.trade_id_sell = t3.trade_id   where delta_date=\''''+str(mode)+"\'"+'''and t2.date_shamsi>\''''+str(date)+"\'" )[0][0])
+            print(total)
             
         for res in query_res:
             lst_res.append(res[0])
 
         profit_array = []
         name_array=[]
-        for i in range(1,22):
+        for i in range(1,count):
             co = 0
-            comp = 0.2
-            name_array.append(str(round(comp+(i-1)*0.1,2))+","+str(round(comp+(i)*0.1,2)))
+            name_array.append(str(round(comp+(i-1)*i_multiple,2))+","+str(round(comp+(i)*i_multiple,2)))
             for res in lst_res:
+                # print(str(comp+(i-1)*i_multiple)+"\t"+str(res)+"\t"+str(comp+i*i_multiple))
+                    
                 try:
-                    if comp+(i-1)*0.1< res <comp+i*0.1:
+                    if int(comp+(i-1)*i_multiple)<= int(res) < int(comp+i*i_multiple):
                         co+=1
                 except:
                     pass
@@ -378,6 +379,9 @@ class AkhzaDataBase:
                 profit_array.append(0)
         
         return name_array, profit_array
+    
+    
+         
         
 
 

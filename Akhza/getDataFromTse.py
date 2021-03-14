@@ -22,7 +22,7 @@ class OnlineData:
         self.broker_controller = BrokerControll(self.driver)
         self.color = "black"
         self.tim = 0.0001
-        self.dataNumber = 3
+        self.dataNumber = 30
         self.VALUES = []
         self.nullStocks = []
         self.fullTradeHistory = []
@@ -569,7 +569,8 @@ class OnlineData:
             print("\n\n")
             print("Ytm Average Sell: " + str(self.findYtmAverage()[0]))
             print("Ytm Average Buy: " + str(self.findYtmAverage()[1]))
-
+            self.broker_controller.set_average_buy(self.findYtmAverage()[1])
+            self.broker_controller.set_average_sell(self.findYtmAverage()[0])
             print("-----------S I G N A L---------------")
             print("boughtStock: "+str(self.broker_controller.bought_stocks))
 

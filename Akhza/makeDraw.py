@@ -7,26 +7,24 @@ from os import listdir
 from os.path import isfile, join
 import json
 from akhzaDatabase import AkhzaDataBase
+import plotly.express as px
 
 
 class Plotter:
     def __init__(self):
         self.db = AkhzaDataBase()
-
+        self.color = "#CDB599"
     def plotter(self,xArray, yArray, xLabel, yLabel, title):
-        global color
-        fig = go.Figure()
+        fig = px.bar()
         # Create and style traces
         fig.add_trace(go.Scatter(x=xArray, y=yArray, name='name',
-                                line=dict(color=color, width=4)))
+                                line=dict(color=self.color, width=4)))
         fig.update_layout(
             title=title,
                         xaxis_title=xLabel,
                         yaxis_title=yLabel,
                         
-            font=dict(
-            family="B Yekan",
-            size=18)
+
             )
         fig.show()
 
@@ -61,17 +59,50 @@ class Plotter:
             co+=1
         return arrayForAll
     
+    def plot_ytm(self):
+        arrayForAll=[]
+        lst_buy0901=self.db.make_array_counted_values_ytm(mode="buy",date="1399-09-01")
+        lst_sell0901=self.db.make_array_counted_values_ytm(mode="sell",date="1399-09-01")
+        
+        
+        lst_buy1001=self.db.make_array_counted_values_ytm(mode="buy",date="1399-10-01")
+        lst_sell1001=self.db.make_array_counted_values_ytm(mode="sell",date="1399-10-01")
+        
+        lst_buy1101=self.db.make_array_counted_values_ytm(mode="buy",date="1399-11-01")
+        lst_sell1101=self.db.make_array_counted_values_ytm(mode="sell",date="1399-11-01")
+        
+        colors =["#5F4B8B","#E69A8D","#42EADD","#CDB599","#FC766A","#00203F"]
+        total= [(lst_buy0901,"buy_ytm 1399-09-01"),(lst_sell0901,"sell_ytm 1399-09-01"),(lst_buy1001,"buy_ytm 1399-10-01"),(lst_sell1001,"sell_ytm 1399-10-01"),(lst_buy1101,"buy_ytm 1399-11-01"),(lst_sell1101,"sell_ytm 1399-11-01")]
+        co = 0
+        for array in total:
+            arrayForAll.append([array[0][0],array[0][1],array[1],colors[co]])
+            co+=1
+        return arrayForAll
+        
+        
+    def plot_stocks(self):
+        stocksName = ['910', '713', '716', '718',
+              '720', '721', '722', '723',
+              '804', '805', '806', '807',
+              '808', '809', '810', '811',
+              '812', '813', '814', '815',
+              '816', '817', '818', '819',
+              '820', '821', '902', '903',
+              '904', '905', '906', '907',
+              '908', '909']
+        lst_stocks = self.db.make_array_profit_percent(mode="0",kind="t2.stock_id",comp=1,i_multiple=1,count=35)
+        self.plotter(stocksName,lst_stocks[1],"stock_number","percent","stock/percent")
     
     
             
+
             
-            
 
 
 
 
 
 
-# obj = Plotter()
-# obj.plotForAll(obj.plot_profit_percent(),"مقایسه درصدی میزان درصد سود در طی مدت های مختلف نگهداری","درصد سود " , "درصد فراوانی")
-
+obj = Plotter()
+# obj.plotForAll(obj.plot_ytm(),"مقایسه  میزان ytm بر حسب تعداد","ytm " , "درصد فراوانی")
+obj.plot_stocks()
