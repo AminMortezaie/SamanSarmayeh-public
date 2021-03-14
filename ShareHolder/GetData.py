@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from samansarmaye.ShareHolder.ShareHolder_Database import ShareHolderDataBase
+import persian
 class GetData_General:
     def __init__(self,url):
         self.chrome_webDriver = "C:\Program Files (x86)\chromedriver.exe"
@@ -43,7 +44,7 @@ class GetData_General:
         first_result = self.loadElement("/html/body/div[5]/section/div/div/div/div[2]/table/tbody/tr[3]/td[1]/a")
         print(first_result.text)
         if ("قدیمی" in first_result.text):
-          first_result = self.loadElement("/html/body/div[5]/section/div/div/div/div[2]/table/tbody/tr[2]/td[1]/a")
+          first_result = self.loadElement("/html/body/div[5]/section/div/div/div/div[2]/table/tbody/tr[1]/td[1]/a")
         try:
             # go to the first result page
             first_result.click()
@@ -153,7 +154,7 @@ class GetData_General:
             password="2448"
         )
         names = db_connector.select_all_from_table("stocks_name",["stock_name"])
-        names = [names[0]]
+        names = [["خبهمن"]]
         for tuple_name in names:
             name = tuple_name[0]
             self.load_share_table(name)
@@ -164,8 +165,9 @@ class GetData_General:
             # insert stock data into db
             stock_data = stock_data[0]
             stock_data.insert(0,name)
-            db_connector.insert_into_table("stock",stock_data,mode="HD")
-
+            name = persian.convert_ar_characters(name)
+            if (len(db_connector.check_existance("stock","stick_name",name)) == 0):
+                db_connector.insert_into_table("stock",stock_data,mode="HD")
 
             holding_data.insert(0,"*")
             holding_data.insert(0,"*")
@@ -175,18 +177,25 @@ class GetData_General:
             # insert share holder data into db
             for share_holder_data in share_holders_data:
                 share_holder_name = share_holder_data[0][0]
-                db_connector.insert_into_table("share_holder",[share_holder_name,None,"True"],mode="HD")
+                share_holder_name = persian.convert_ar_characters(share_holder_name)
+                if ( len(db_connector.check_existance("share_holder","holder_name",share_holder_name)) == 0):
+                    db_connector.insert_into_table("share_holder",[share_holder_name,None,"True"],mode="HD")
                 # insert holding data into db
                 share_holder_date_volume = share_holder_data[1:]
                 total_volume = 0
                 last_volume = 0
                 for date,volume in share_holder_date_volume:
+                    tmp = date.split("/")
+                    dash_date = ""
+                    for k in tmp:
+                        dash_date = dash_date + k + "-"
+                    dash_date = dash_date[:len(dash_date)-1]
                     print(date,volume)
                     int_volume = self.string_to_numerical(volume,int)
                     buy_or_sell_volume = int_volume - last_volume
                     total_volume += int_volume
                     holding_data[-1] = buy_or_sell_volume
-                    holding_data[-2] = date
+                    holding_data[-2] = dash_date
                     holding_data[-3] = total_volume
 
                     stock_id = db_connector.search("stock","stock_name","\'" + name + "\'","stock_id")
