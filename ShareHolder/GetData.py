@@ -7,12 +7,12 @@ from samansarmaye.ShareHolder.ShareHolder_Database import ShareHolderDataBase
 import persian
 class GetData_General:
     def __init__(self,url):
-        self.chrome_webDriver = "C:\Program Files (x86)\chromedriver.exe"
+        self.chrome_webDriver = "D:\Github\samansarmaye\chromedriver.exe"
         self.driver = webdriver.Chrome(self.chrome_webDriver)
         self.url = url
         self.driver.get(self.url)
 
-    def loadElement(self,xpath, mode="slow"):
+    def loadElement(self,xpath, mode="medium"):
         if mode == "slow":
             return WebDriverWait(self.driver, 3000).until(
                 EC.presence_of_element_located(
@@ -41,10 +41,10 @@ class GetData_General:
         search_text.send_keys(name)
         # get the first result of search
 
-        first_result = self.loadElement("/html/body/div[5]/section/div/div/div/div[2]/table/tbody/tr[3]/td[1]/a")
+        first_result = self.loadElement("/html/body/div[5]/section/div/div/div/div[2]/table/tbody/tr[1]/td[1]/a")
         print(first_result.text)
         if ("قدیمی" in first_result.text):
-          first_result = self.loadElement("/html/body/div[5]/section/div/div/div/div[2]/table/tbody/tr[1]/td[1]/a")
+          first_result = self.loadElement("/html/body/div[5]/section/div/div/div/div[2]/table/tbody/tr[2]/td[1]/a")
         try:
             # go to the first result page
             first_result.click()
@@ -61,13 +61,24 @@ class GetData_General:
         stock_data = []
         for name in names:
             self.load_share_table(name)
-            stock_name = name
-            stock_num_share = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[4]/table/tbody/tr[1]/td[2]/div").get_attribute("title")
-            stock_url = self.driver.current_url
+            try:
+                stock_num_share = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[4]/table/tbody/tr[1]/td[2]/div",mode="fast").get_attribute("title")
+            except:
+                stock_num_share = ""
+            try:
+                stock_url = self.driver.current_url
+            except:
+                stock_url = ""
             stock_data_url = None   # later ...
-            stock_base_volume = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[4]/table/tbody/tr[2]/td[2]/div").get_attribute("title")
-            stock_floating = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[4]/table/tbody/tr[3]/td[2]").text
-            stock_floating = stock_floating[:len(stock_floating) - 1]
+            try:
+                stock_base_volume = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[4]/table/tbody/tr[2]/td[2]/div",mode="fast").get_attribute("title")
+            except:
+                stock_base_volume = ""
+            try:
+                stock_floating = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[4]/table/tbody/tr[3]/td[2]",mode="fast").text
+                stock_floating = stock_floating[:len(stock_floating) - 1]
+            except:
+                stock_floating = ""
             temp = [stock_num_share,stock_url,stock_data_url,stock_base_volume,stock_floating]
             stock_data.append(temp)
         return stock_data
@@ -91,6 +102,7 @@ class GetData_General:
         # return share_holders.Fetch_Data(name)
         try:
             # open holders page
+            "/html/body/div[4]/form/div[2]/div/ul/li[10]/a"
             holder_page = self.loadElement("/html/body/div[4]/form/div[2]/div/ul/li[10]/a").click()
         except:
             print("صفحه ی سهامداران باز نشد !")
@@ -118,20 +130,40 @@ class GetData_General:
             holder_data.insert(0,header)
             result.append(holder_data)
             self.loadElement("/html/body/div[5]/div[2]").click()
-        self.driver.quit()
+        # self.driver.quit()
         return result
 
     def get_holding_data(self):
-        group_pe = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[6]/table/tbody/tr[1]/td[6]").text
-        pe = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[6]/table/tbody/tr[1]/td[4]").text
-        eps = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[6]/table/tbody/tr[1]/td[2]").text
-        month_average_volume = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[4]/table/tbody/tr[4]/td[2]/div").get_attribute("title")
-        year_high = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[2]/table/tbody/tr[4]/td[2]").text
-        year_low = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[2]/table/tbody/tr[4]/td[3]").text
+        try:
+            group_pe = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[6]/table/tbody/tr[1]/td[6]",mode="superFast").text
+        except:
+            group_pe = ""
+        try:
+            pe = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[6]/table/tbody/tr[1]/td[4]",mode="superFast").text
+        except:
+            pe = ""
+        try:
+            eps = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[6]/table/tbody/tr[1]/td[2]",mode="superFast").text
+        except:
+            eps = ""
+        try:
+            month_average_volume = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[4]/table/tbody/tr[4]/td[2]/div",mode="superFast").get_attribute("title")
+        except:
+            month_average_volume = ""
+        try:
+            year_high = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[2]/table/tbody/tr[4]/td[2]",mode="superFast").text
+        except:
+            year_high = ""
+        try:
+            year_low = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[2]/table/tbody/tr[4]/td[3]",mode="superFast").text
+        except:
+            year_low = ""
+
         res = [self.string_to_numerical(group_pe),self.string_to_numerical(pe),self.string_to_numerical(eps,int),
                 self.string_to_numerical(month_average_volume,int),self.string_to_numerical(year_high,int),
                 self.string_to_numerical(year_low,int)]
-        print(res,group_pe,pe,eps,month_average_volume,year_high,year_low)
+
+        # print(res,group_pe,pe,eps,month_average_volume,year_high,year_low)
         return res
 
     def string_to_numerical(self,string,mode=float):
@@ -149,24 +181,34 @@ class GetData_General:
     def share_holder_db(self):
         db_connector = ShareHolderDataBase(
             dataBase_name="share_holder_db",
-            host_name="localhost",
+            host_name="127.0.0.1",
             username="postgres",
-            password="2448"
+            password="Amin4416"
         )
         names = db_connector.select_all_from_table("stocks_name",["stock_name"])
-        names = [["خبهمن"]]
+        print(names)
+        names = names[17:]
+        # names = [["خبهمن"]]
         for tuple_name in names:
+            # self.driver.get(self.url)
             name = tuple_name[0]
-            self.load_share_table(name)
-            stock_data = self.get_stock_data(name)
-            holding_data = self.get_holding_data()
-            share_holders_data = self.get_share_holder_data()
+            # self.load_share_table(name)
+            try:
+                stock_data = self.get_stock_data(name)
+                holding_data = self.get_holding_data()
+                share_holders_data = self.get_share_holder_data()
 
+            except:
+                print(name)
+                # file = open("Unsuccessful.txt","a")
+                # file.write(name + "\n")
+                # file.close()
+                pass
             # insert stock data into db
             stock_data = stock_data[0]
             stock_data.insert(0,name)
             name = persian.convert_ar_characters(name)
-            if (len(db_connector.check_existance("stock","stick_name",name)) == 0):
+            if (len(db_connector.check_existance("stock","stock_name",name)) == 0):
                 db_connector.insert_into_table("stock",stock_data,mode="HD")
 
             holding_data.insert(0,"*")
@@ -190,7 +232,7 @@ class GetData_General:
                     for k in tmp:
                         dash_date = dash_date + k + "-"
                     dash_date = dash_date[:len(dash_date)-1]
-                    print(date,volume)
+                    # print(date,volume)
                     int_volume = self.string_to_numerical(volume,int)
                     buy_or_sell_volume = int_volume - last_volume
                     total_volume += int_volume
@@ -202,11 +244,11 @@ class GetData_General:
                     share_holder_id = db_connector.search("share_holder","holder_name","\'" + share_holder_name + "\'","holder_id")
                     holding_data[0] = stock_id[0][0]
                     holding_data[1] = share_holder_id[0][0]
-                    print(holding_data)
+                    # print(holding_data)
                     db_connector.insert_into_table("holding",holding_data)
 
 
-            db_connector.connection.close()
+        db_connector.connection.close()
 
 
 

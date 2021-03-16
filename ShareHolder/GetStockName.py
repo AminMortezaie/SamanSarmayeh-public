@@ -1,4 +1,5 @@
-from samansarmaye.ShareHolder.GetData import GetData_General
+from GetData import GetData_General
+
 from selenium.webdriver import ActionChains
 from samansarmaye.GeneralDataBase import GeneralDataBase
 import time
@@ -21,7 +22,8 @@ class Get_Stock_name():
         self.WebConnector.loadElement("/html/body/div[7]/div[2]").click()
         time.sleep(5)
     def GSN(self):
-        db_connector = GeneralDataBase(dataBase_name="share_holder_db",host_name="localhost",username="postgres",password="2448")
+        db_connector = GeneralDataBase(dataBase_name="share_holder_db",host_name="127.0.0.1",
+        username="postgres",password="Amin4416")
         for i in range(2,750):
             try:
                 stock_name = self.WebConnector.loadElement("/html/body/div[4]/form/div[2]/div[3]/div[" + str(i) + "]/div[1]/a",mode="superFast").text

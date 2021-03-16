@@ -59,13 +59,13 @@ class GeneralDataBase:
         return self.make_query(Query)
     def search(self,tableName,indexColumn,indexValue,targetColumn):
         Query = 'SELECT ' + targetColumn + " FROM " + tableName + " WHERE " + indexColumn + " = " + indexValue + ";"
-        print(Query)
+        # print(Query)
         return self.make_query(Query)
-db_connector = GeneralDataBase(
-            dataBase_name="share_holder_db",
-            host_name="localhost",
-            username="postgres",
-            password="2448"
-        )
+# db_connector = GeneralDataBase(
+#             dataBase_name="share_holder_db",
+#             host_name="127.0.0.1",
+#             username="postgres",
+#             password="Amin4416"
+#         )
 # print(db_connector.search("stocks_name","stock_name","\'خفولا\'","stock_id")[0][0])
 # db_connector.connection.close()
