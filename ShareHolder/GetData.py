@@ -7,7 +7,7 @@ from samansarmaye.ShareHolder.ShareHolder_Database import ShareHolderDataBase
 import persian
 class GetData_General:
     def __init__(self,url):
-        self.chrome_webDriver = "D:\Github\samansarmaye\chromedriver.exe"
+        self.chrome_webDriver = "C:\Program Files (x86)\chromedriver.exe"
         self.driver = webdriver.Chrome(self.chrome_webDriver)
         self.url = url
         self.driver.get(self.url)
@@ -42,7 +42,7 @@ class GetData_General:
         # get the first result of search
 
         first_result = self.loadElement("/html/body/div[5]/section/div/div/div/div[2]/table/tbody/tr[1]/td[1]/a")
-        print(first_result.text)
+        # print(first_result.text)
         if ("قدیمی" in first_result.text):
           first_result = self.loadElement("/html/body/div[5]/section/div/div/div/div[2]/table/tbody/tr[2]/td[1]/a")
         try:
@@ -60,6 +60,7 @@ class GetData_General:
             names = stocks
         stock_data = []
         for name in names:
+            self.driver.refresh()
             self.load_share_table(name)
             try:
                 stock_num_share = self.loadElement("/html/body/div[4]/form/div[3]/div[2]/div[1]/div[2]/div[4]/table/tbody/tr[1]/td[2]/div",mode="fast").get_attribute("title")
@@ -88,7 +89,6 @@ class GetData_General:
         holders = []
         holders_counter = 1
         while(True):
-
             holder_iterator = "/html/body/div[4]/form/div[3]/div[9]/span/div[2]/div[2]/table/tbody/tr[" + str(holders_counter) + "]"
             holders_counter += 1
             try:
@@ -97,13 +97,15 @@ class GetData_General:
                 break
 
         return holders
-    def get_share_holder_data(self):
+    def get_share_holder_data(self,mode="normal"):
         # share_holders = Fetch_Share_Holder_Data()
         # return share_holders.Fetch_Data(name)
         try:
             # open holders page
-            "/html/body/div[4]/form/div[2]/div/ul/li[10]/a"
-            holder_page = self.loadElement("/html/body/div[4]/form/div[2]/div/ul/li[10]/a").click()
+            button = "/html/body/div[4]/form/div[2]/div/ul/li[10]/a"
+            if (mode == "fund"):
+                button = "/html/body/div[4]/form/div[2]/div/ul/li[9]/a"
+            holder_page = self.loadElement(button).click()
         except:
             print("صفحه ی سهامداران باز نشد !")
         result = []
@@ -183,74 +185,76 @@ class GetData_General:
             dataBase_name="share_holder_db",
             host_name="127.0.0.1",
             username="postgres",
-            password="Amin4416"
+            password="2448"
         )
         names = db_connector.select_all_from_table("stocks_name",["stock_name"])
-        print(names)
-        names = names[17:]
-        # names = [["خبهمن"]]
-        for tuple_name in names:
+        # names = names[26:]
+        i = 0
+        while i < len(names):
             # self.driver.get(self.url)
+            tuple_name = names[i]
             name = tuple_name[0]
+            print(name)
             # self.load_share_table(name)
             try:
                 stock_data = self.get_stock_data(name)
                 holding_data = self.get_holding_data()
-                share_holders_data = self.get_share_holder_data()
+                if ("صندوق" in self.loadElement("/html/body/div[4]/form/div[3]/div[1]").text):
+                    share_holders_data = self.get_share_holder_data(mode="fund")
+                else:
+                    share_holders_data = self.get_share_holder_data()
+                # insert stock data into db
+                stock_data = stock_data[0]
+                stock_data.insert(0, name)
+                name = persian.convert_ar_characters(name)
+                if (len(db_connector.check_existance("stock", "stock_name", name)) == 0):
+                    db_connector.insert_into_table("stock", stock_data, mode="HD")
+
+                holding_data.insert(0, "*")
+                holding_data.insert(0, "*")
+                holding_data.append("*")
+                holding_data.append("*")
+                holding_data.append("*")
+                # insert share holder data into db
+                for share_holder_data in share_holders_data:
+                    share_holder_name = share_holder_data[0][0]
+                    share_holder_name = persian.convert_ar_characters(share_holder_name)
+                    if (len(db_connector.check_existance("share_holder", "holder_name", share_holder_name)) == 0):
+                        db_connector.insert_into_table("share_holder", [share_holder_name, None, "True"], mode="HD")
+                    # insert holding data into db
+                    share_holder_date_volume = share_holder_data[1:]
+                    total_volume = 0
+                    last_volume = 0
+                    for date, volume in share_holder_date_volume:
+                        tmp = date.split("/")
+                        dash_date = ""
+                        for k in tmp:
+                            dash_date = dash_date + k + "-"
+                        dash_date = dash_date[:len(dash_date) - 1]
+                        # print(date,volume)
+                        int_volume = self.string_to_numerical(volume, int)
+                        buy_or_sell_volume = int_volume - last_volume
+                        total_volume += int_volume
+                        holding_data[-1] = buy_or_sell_volume
+                        holding_data[-2] = dash_date
+                        holding_data[-3] = total_volume
+
+                        stock_id = db_connector.search("stock", "stock_name", "\'" + name + "\'", "stock_id")
+                        share_holder_id = db_connector.search("share_holder", "holder_name",
+                                                              "\'" + share_holder_name + "\'", "holder_id")
+                        holding_data[0] = stock_id[0][0]
+                        holding_data[1] = share_holder_id[0][0]
+                        # print(holding_data)
+                        db_connector.insert_into_table("holding", holding_data)
+                i += 1
 
             except:
-                print(name)
-                # file = open("Unsuccessful.txt","a")
-                # file.write(name + "\n")
-                # file.close()
-                pass
-            # insert stock data into db
-            stock_data = stock_data[0]
-            stock_data.insert(0,name)
-            name = persian.convert_ar_characters(name)
-            if (len(db_connector.check_existance("stock","stock_name",name)) == 0):
-                db_connector.insert_into_table("stock",stock_data,mode="HD")
-
-            holding_data.insert(0,"*")
-            holding_data.insert(0,"*")
-            holding_data.append("*")
-            holding_data.append("*")
-            holding_data.append("*")
-            # insert share holder data into db
-            for share_holder_data in share_holders_data:
-                share_holder_name = share_holder_data[0][0]
-                share_holder_name = persian.convert_ar_characters(share_holder_name)
-                if ( len(db_connector.check_existance("share_holder","holder_name",share_holder_name)) == 0):
-                    db_connector.insert_into_table("share_holder",[share_holder_name,None,"True"],mode="HD")
-                # insert holding data into db
-                share_holder_date_volume = share_holder_data[1:]
-                total_volume = 0
-                last_volume = 0
-                for date,volume in share_holder_date_volume:
-                    tmp = date.split("/")
-                    dash_date = ""
-                    for k in tmp:
-                        dash_date = dash_date + k + "-"
-                    dash_date = dash_date[:len(dash_date)-1]
-                    # print(date,volume)
-                    int_volume = self.string_to_numerical(volume,int)
-                    buy_or_sell_volume = int_volume - last_volume
-                    total_volume += int_volume
-                    holding_data[-1] = buy_or_sell_volume
-                    holding_data[-2] = dash_date
-                    holding_data[-3] = total_volume
-
-                    stock_id = db_connector.search("stock","stock_name","\'" + name + "\'","stock_id")
-                    share_holder_id = db_connector.search("share_holder","holder_name","\'" + share_holder_name + "\'","holder_id")
-                    holding_data[0] = stock_id[0][0]
-                    holding_data[1] = share_holder_id[0][0]
-                    # print(holding_data)
-                    db_connector.insert_into_table("holding",holding_data)
-
+                print(name + "          " + "-------------------------" )
+                self.driver.quit()
+                self.driver = webdriver.Chrome(self.chrome_webDriver)
+                self.driver.get(self.url)
 
         db_connector.connection.close()
-
-
 
 obj = GetData_General("http://www.tsetmc.com/Loader.aspx?ParTree=15")
 obj.share_holder_db()

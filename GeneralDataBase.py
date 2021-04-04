@@ -55,7 +55,7 @@ class GeneralDataBase:
 
     def check_existance(self,tableName,columnName,value):
         Query = 'SELECT ' + columnName + ' FROM ' + tableName + ' WHERE ' + columnName + ' = \'' + value + '\';'
-        print(Query)
+        # print(Query)
         return self.make_query(Query)
     def search(self,tableName,indexColumn,indexValue,targetColumn):
         Query = 'SELECT ' + targetColumn + " FROM " + tableName + " WHERE " + indexColumn + " = " + indexValue + ";"

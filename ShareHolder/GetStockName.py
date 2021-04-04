@@ -23,7 +23,7 @@ class Get_Stock_name():
         time.sleep(5)
     def GSN(self):
         db_connector = GeneralDataBase(dataBase_name="share_holder_db",host_name="127.0.0.1",
-        username="postgres",password="Amin4416")
+        username="postgres",password="2448")
         for i in range(2,750):
             try:
                 stock_name = self.WebConnector.loadElement("/html/body/div[4]/form/div[2]/div[3]/div[" + str(i) + "]/div[1]/a",mode="superFast").text
