@@ -12,7 +12,7 @@ from telegram.error import NetworkError, Unauthorized
 import os
 from server_controller import *
 
-token = "1512492218:AAH6tBiijJ_l12MBN260v5Hwh9-GtTtEjak"  # server_controller1_bot
+token = #####
 update_id = 0
 state = 0
 chat_id = 0
